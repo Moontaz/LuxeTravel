@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model foodorder {
+  order_id    Int      @id @default(autoincrement())
+  ticket_code String
+  food_items  String   @db.LongText
+  total_price Decimal
+  created_at  DateTime @default(now())
+}
+
+model menu {
+  food_id   Int     @id @default(autoincrement())
+  food_name String
+  price     Int
+  desc      String?
+  image_url String
+}
+
+model user {
+  user_id    Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+}

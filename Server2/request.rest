@@ -1,0 +1,34 @@
+GET http://localhost:5000/api/food/menu
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6Ikx1eGUgVHJhdmVsIiwiZW1haWwiOiJsdXhldHJhdmVsQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI4NDg5NjAwLCJleHAiOjE3Mjg0OTMyMDB9.7nX7S0MNe29VwZaY4J-2r5jl2bNiC8DmUqHH-x9LA2o
+
+###
+GET http://localhost:5000/users/471b4d760fdd094c
+###
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+   "name": "Luxe Travel",
+   "email": "luxetravel@example.com",
+   "password": "password123"
+}
+###
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+   "email": "luxetravel@example.com",
+   "password": "password123"
+}
+###
+PATCH http://localhost:5000/users/579477e0f11efaf4
+Content-Type: application/json
+
+{
+   "name": "Tono Updated",
+   "email": "tono@gmail.com",
+   "address": "Surabaya",
+   "gender": "Male"
+}
+###
+DELETE http://localhost:5000/users/579477e0f11efaf4

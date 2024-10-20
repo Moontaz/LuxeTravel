@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+}
+
+model Buses {
+  bus_id          Int      @id @default(autoincrement())
+  bus_name        String?  @db.VarChar(255)
+  route_id        Int?
+  departure_time  DateTime @db.DateTime(0)
+  price           Int
+  seat_capacity   Int
+  available_seats Int
+  route           Routes?  @relation(fields: [route_id], references: [route_id], onDelete: Restrict, onUpdate: Restrict, map: "bus_ibfk_1")
+  tickets         Tickets[]
+
+  @@index([route_id], map: "route_id")
+}
+
+model Cities {
+  city_id          Int     @id @default(autoincrement())
+  city_name        String  @db.VarChar(255)
+  departure_routes Routes[] @relation("DepartureCity")
+  arrival_routes   Routes[] @relation("ArrivalCity")
+}
+
+model Routes {
+  route_id          Int   @id @default(autoincrement())
+  departure_city_id Int?
+  arrival_city_id   Int?
+  buses             Buses[]
+  departure_city    Cities? @relation("DepartureCity", fields: [departure_city_id], references: [city_id], onDelete: Restrict, onUpdate: Restrict, map: "route_ibfk_1")
+  arrival_city      Cities? @relation("ArrivalCity", fields: [arrival_city_id], references: [city_id], onDelete: Restrict, onUpdate: Restrict, map: "route_ibfk_2")
+
+  @@index([arrival_city_id], map: "arrival_city_id")
+  @@index([departure_city_id], map: "departure_city_id")
+}
+
+model Tickets {
+  ticket_id   Int       @id @default(autoincrement())
+  user_id     Int
+  bus_id      Int
+  no_seat     String    @db.VarChar(10)
+  total_price Int
+  ticket_code String    @db.VarChar(100)
+  created_at  DateTime? @default(now()) @db.DateTime(0)
+  user        Users      @relation(fields: [user_id], references: [user_id], onUpdate: Restrict, map: "ticket_ibfk_1")
+  bus         Buses       @relation(fields: [bus_id], references: [bus_id], onUpdate: Restrict, map: "ticket_ibfk_2")
+
+  @@index([bus_id], map: "bus_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Users {
+  user_id    Int       @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  gender     String?   @db.VarChar(255)
+  email      String    @unique(map: "email") @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  tickets    Tickets[]
+}

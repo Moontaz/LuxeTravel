@@ -1,0 +1,44 @@
+GET http://localhost:4000/api/bus/buses
+###
+GET http://localhost:4000/api/bus/buses/29/seat
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI4NzUyNTgxLCJleHAiOjE3Mjg3NTYxODF9.S9RjSMopOFRAgiw9zKz87nbZDgqa2Lpd3RVrvhV1LO0
+
+###
+GET http://localhost:5000/users/471b4d760fdd094c
+###
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+   "name": "Luxe Travel",
+   "email": "luxetravel@example.com",
+   "password": "password123"
+}
+###
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+   "email": "luxetravel@example.com",
+   "password": "password123"
+}
+###
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+   "email": "john@example.com",
+   "password": "password123"
+}
+###
+PATCH http://localhost:5000/users/579477e0f11efaf4
+Content-Type: application/json
+
+{
+   "name": "Tono Updated",
+   "email": "tono@gmail.com",
+   "address": "Surabaya",
+   "gender": "Male"
+}
+###
+DELETE http://localhost:5000/users/579477e0f11efaf4
