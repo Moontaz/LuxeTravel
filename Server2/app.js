@@ -79,8 +79,8 @@ app.use("/api/food", menuRoutes, foodOrderRoutes); // Food API
     });
 
     const ADMIN = {
-      email: "admin@example.com",
-      password: await bcrypt.hash("12345", 10),
+      email: "contoh@contoh.com",
+      password: await bcrypt.hash("inicumancontoh", 10),
     };
 
     // AdminJS router
