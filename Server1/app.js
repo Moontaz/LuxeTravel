@@ -85,8 +85,8 @@ app.use("/api/bus", busRoutes);
 
     // AdminJS authentication
     const ADMIN = {
-      email: "admin@example.com",
-      password: await bcrypt.hash("12345", 10),
+      email: "contoh@contoh.com",
+      password: await bcrypt.hash("inicumancontoh", 10),
     };
 
     const adminRouter = AdminJSExpress.buildAuthenticatedRouter(adminJs, {
