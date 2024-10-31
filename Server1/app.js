@@ -60,23 +60,23 @@ app.use("/api/bus", busRoutes);
     const adminJs = new AdminJS({
       resources: [
         {
-          resource: { model: getModelByName("Buses"), client: prisma },
+          resource: { model: getModelByName("buses"), client: prisma },
           options: { navigation: { name: "Transport", icon: "Bus" } },
         },
         {
-          resource: { model: getModelByName("Cities"), client: prisma },
+          resource: { model: getModelByName("cities"), client: prisma },
           options: { navigation: { name: "Geography", icon: "Location" } },
         },
         {
-          resource: { model: getModelByName("Routes"), client: prisma },
+          resource: { model: getModelByName("routes"), client: prisma },
           options: { navigation: { name: "Routes", icon: "Map" } },
         },
         {
-          resource: { model: getModelByName("Tickets"), client: prisma },
+          resource: { model: getModelByName("tickets"), client: prisma },
           options: { navigation: { name: "Tickets", icon: "Ticket" } },
         },
         {
-          resource: { model: getModelByName("Users"), client: prisma },
+          resource: { model: getModelByName("users"), client: prisma },
           options: { navigation: { name: "Users", icon: "User" } },
         },
       ],

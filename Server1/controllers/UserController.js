@@ -8,7 +8,7 @@ const generateUID = () => {
 // Get all users
 exports.getUsers = async (req, res) => {
   try {
-    const response = await prisma.Users.findMany(); // Use plural "Users" as per the updated Prisma schema
+    const response = await prisma.users.findMany(); // Use plural "Users" as per the updated Prisma schema
     logger.info("Successfully fetched all users"); // Log info
     res.status(200).json(response);
   } catch (error) {
@@ -20,7 +20,7 @@ exports.getUsers = async (req, res) => {
 // Get user by ID
 exports.getUserById = async (req, res) => {
   try {
-    const response = await prisma.Users.findUnique({
+    const response = await prisma.users.findUnique({
       where: { user_id: parseInt(req.params.id) }, // Prisma uses field names as per the schema
     });
     if (!response) {
@@ -39,7 +39,7 @@ exports.getUserById = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     req.body.uid = generateUID(); // Assuming generateUID is defined somewhere
-    const newUser = await prisma.Users.create({
+    const newUser = await prisma.users.create({
       data: req.body, // Prisma uses the "data" key for creation
     });
     logger.info(`User created with UID: ${req.body.uid}`); // Log info
@@ -53,7 +53,7 @@ exports.createUser = async (req, res) => {
 // Update a user by UID
 exports.updateUser = async (req, res) => {
   try {
-    const updatedUser = await prisma.Users.update({
+    const updatedUser = await prisma.users.update({
       where: { uid: req.params.uid },
       data: req.body, // Prisma uses "data" to specify the fields to update
     });
@@ -72,7 +72,7 @@ exports.updateUser = async (req, res) => {
 // Delete a user by UID
 exports.deleteUser = async (req, res) => {
   try {
-    const deletedUser = await prisma.Users.delete({
+    const deletedUser = await prisma.users.delete({
       where: { uid: req.params.uid },
     });
     if (!deletedUser) {

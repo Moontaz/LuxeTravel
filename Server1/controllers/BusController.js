@@ -4,7 +4,7 @@ const logger = require("../config/logger"); // Import logger
 // Function to get all buses
 exports.getBuses = async (req, res) => {
   try {
-    const buses = await prisma.Buses.findMany({
+    const buses = await prisma.buses.findMany({
       include: {
         route: {
           include: {
@@ -57,7 +57,7 @@ exports.getBusById = async (req, res) => {
 // Function to get all cities
 exports.getCities = async (req, res) => {
   try {
-    const cities = await prisma.Cities.findMany();
+    const cities = await prisma.cities.findMany();
     logger.info("Successfully fetched all cities");
     res.status(200).json(cities);
   } catch (error) {
@@ -72,7 +72,7 @@ exports.createTicket = async (req, res) => {
 
   try {
     logger.info(`Attempting to create ticket for bus_id: ${bus_id}`);
-    const bus = await prisma.Buses.findUnique({
+    const bus = await prisma.buses.findUnique({
       where: { bus_id: parseInt(bus_id) },
     });
 
@@ -81,7 +81,7 @@ exports.createTicket = async (req, res) => {
       return res.status(404).json({ error: "Bus not found" });
     }
 
-    const newTicket = await prisma.Tickets.create({
+    const newTicket = await prisma.tickets.create({
       data: {
         user_id,
         bus_id,
@@ -104,7 +104,7 @@ exports.getTicketsByUserId = async (req, res) => {
   const userId = req.params.user_id;
 
   try {
-    const tickets = await prisma.Tickets.findMany({
+    const tickets = await prisma.tickets.findMany({
       where: { user_id: parseInt(userId) },
       include: {
         bus: {
@@ -136,7 +136,7 @@ exports.getTicketById = async (req, res) => {
   const ticketId = req.params.ticket_id;
 
   try {
-    const ticket = await prisma.Tickets.findUnique({
+    const ticket = await prisma.tickets.findUnique({
       where: { ticket_id: parseInt(ticketId) },
       include: {
         bus: {
@@ -173,7 +173,7 @@ exports.getBookedSeatsByBusId = async (req, res) => {
     }
 
     // Fetch all tickets where the bus_id matches
-    const tickets = await prisma.Tickets.findMany({
+    const tickets = await prisma.tickets.findMany({
       where: { bus_id: busId },
       select: { no_seat: true }, // Only select the 'no_seat' field
     });
