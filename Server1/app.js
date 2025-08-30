@@ -125,7 +125,7 @@ app.use("/api/bus", busRoutes);
 })();
 
 const PORT = process.env.PORT || 6000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Bus Ticketing API running on port ${PORT}`);
   logger.info(`Bus Ticketing API running on port ${PORT}`);
   console.log(`AdminJS started on http://localhost:${PORT}/admin`);
