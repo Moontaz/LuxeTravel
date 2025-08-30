@@ -26,7 +26,7 @@ Client-side ![Next.js](https://img.shields.io/badge/-Next.js-000?logo=next.js)
 Server-side ![Node.js](https://img.shields.io/badge/-Node.js-000?logo=node.js)
 ![JavaScript](https://img.shields.io/badge/-JavaScript-000?&logo=JavaScript)![Express.js](https://img.shields.io/badge/-Express.js-000?logo=express) ![Prisma](https://img.shields.io/badge/-Prisma-000?logo=prisma) ![JWT](https://img.shields.io/badge/-JWT-000?logo=json-web-tokens) ![AdminJS](https://img.shields.io/badge/-AdminJS-000?logo=adminjs) ![Context API](https://img.shields.io/badge/-Context%20API-000)
 
-Deployment ![Vercel](https://img.shields.io/badge/-Vercel-000?logo=vercel) ![Railway][https://img.shields.io/badge/-Railway-000?logo=railway ] ![Supabase](https://img.shields.io/badge/-supabase-000?logo=supabase)
+Deployment ![Vercel](https://img.shields.io/badge/-Vercel-000?logo=vercel) ![Railway](https://img.shields.io/badge/-Railway-000?logo=railway) ![Supabase](https://img.shields.io/badge/-supabase-000?logo=supabase)
 
 ## 🚀 Project Overview
 
