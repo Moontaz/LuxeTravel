@@ -11,22 +11,10 @@ const app = express();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const allowedOrigins = [
-  "https://luxetravel.moongo.my.id",
-  "http://localhost:3000", // untuk dev Next.js
-];
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Jika origin ada di allowedOrigins atau request dari server langsung (no origin)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // biar cookies bisa dikirim
+    origin: true,
+    credentials: true,
   })
 );
 app.use(express.json());
@@ -125,7 +113,7 @@ app.use("/api/bus", busRoutes);
 })();
 
 const PORT = process.env.PORT || 6000;
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`Bus Ticketing API running on port ${PORT}`);
   logger.info(`Bus Ticketing API running on port ${PORT}`);
   console.log(`AdminJS started on http://localhost:${PORT}/admin`);
