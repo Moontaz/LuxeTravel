@@ -13,6 +13,8 @@ const prisma = new PrismaClient();
 
 const allowedOrigins = [
   "https://luxetravel.moongo.my.id",
+  "https://www.luxetravel.moongo.my.id",
+  "https://luxetravel-client.vercel.app",
   "http://localhost:3000", // untuk dev Next.js
 ];
 
@@ -30,6 +32,13 @@ app.use(
   })
 );
 app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log("Origin:", req.headers.origin);
+  console.log("Referer:", req.headers.referer);
+  console.log("Host:", req.headers.host);
+  next();
+});
 
 // Configure session for auth
 app.use(
