@@ -9,12 +9,11 @@ const {
   getBookedSeatsByBusId,
 } = require("../controllers/BusController.js"); // Import controller
 const logger = require("../config/logger"); // Import the logger
-const cors = require("cors");
 
 const router = express.Router();
 
 // Public route: Get all available buses
-router.get("/buses", cors(), (req, res, next) => {
+router.get("/buses", (req, res, next) => {
   logger.info("Request to get all available buses"); // Log info
   getBuses(req, res).catch(next); // Handle errors in controller
 });
@@ -31,7 +30,7 @@ router.get("/buses/:bus_id/seat", verifyToken, (req, res, next) => {
 });
 
 // Public route: Get all cities
-router.get("/cities", cors(), (req, res, next) => {
+router.get("/cities", (req, res, next) => {
   logger.info("Request to get all cities"); // Log info
   getCities(req, res).catch(next); // Handle errors in controller
 });
