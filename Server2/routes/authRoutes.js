@@ -16,7 +16,7 @@ router.post("/register", async (req, res) => {
 
   try {
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.users.findUnique({ where: { email } });
     if (existingUser) {
       logger.warn(
         `User registration failed: User already exists with email ${email}`
@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
     }
 
     // Create a new user
-    await prisma.user.create({
+    await prisma.users.create({
       data: {
         name,
         email,
@@ -46,7 +46,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     // Find user in the database
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.users.findUnique({ where: { email } });
     if (!user) {
       logger.warn(`Login attempt failed: No user found with email ${email}`); // Log warning
       return res.status(404).json({ message: "No user found" });
