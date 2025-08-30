@@ -54,6 +54,17 @@ exports.getBusById = async (req, res) => {
   }
 };
 
+// Function to get all cities
+exports.getCities = async (req, res) => {
+  try {
+    const cities = await prisma.cities.findMany();
+    logger.info("Successfully fetched all cities");
+    res.status(200).json(cities);
+  } catch (error) {
+    logger.error(`Error fetching cities: ${error.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 // Function to create a new ticket
 exports.createTicket = async (req, res) => {
   const { user_id, bus_id, no_seat, total_price, ticket_code } = req.body;
