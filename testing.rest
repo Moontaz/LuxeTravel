@@ -1,0 +1,53 @@
+POST http://localhost:5001/api/auth/register
+Content-Type: application/json
+
+{
+   "name": "testing",
+   "email": "luxetravel@example.com",
+   "password": "password123"
+}
+###
+GET http://localhost:5001/api/auth/register
+###
+POST http://192.168.56.72/jwt-toko/server/server.php
+Content-Type: application/json
+
+{
+   "id_pengguna": "111",
+   "pin": "222"
+}
+###
+POST http://192.168.56.72/jwt-toko/server/server.php
+Content-Type: application/json
+
+{
+   "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE2MzE2NTEsImV4cCI6MTczMTYzNTI1MSwiaXNzIjoiUmVzdEFwaUF1dGhKV1QiLCJkYXRhIjp7ImlkX3BlbmdndW5hIjoiMTExIiwicGluIjoiMjIyIn19.PJLXt45hIavHHN2kC8OZQUyou-qzAB15BBmK_25i31A",   "id_barang": "333",
+   "nama_barang": "Pulpen",
+   "aksi": "tambah"
+}
+###
+POST http://192.168.56.72/jwt-toko/server/server.php
+Content-Type: application/json
+
+{
+   "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE2MzE2NTEsImV4cCI6MTczMTYzNTI1MSwiaXNzIjoiUmVzdEFwaUF1dGhKV1QiLCJkYXRhIjp7ImlkX3BlbmdndW5hIjoiMTExIiwicGluIjoiMjIyIn19.PJLXt45hIavHHN2kC8OZQUyou-qzAB15BBmK_25i31A",
+   "id_barang": "333",
+   "nama_barang": "Pulpennnnnnnnnnnnn",
+   "aksi": "ubah"
+}
+###
+POST http://192.168.56.72/jwt-toko/server/server.php
+Content-Type: application/json
+
+{
+   "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE2MzE2NTEsImV4cCI6MTczMTYzNTI1MSwiaXNzIjoiUmVzdEFwaUF1dGhKV1QiLCJkYXRhIjp7ImlkX3BlbmdndW5hIjoiMTExIiwicGluIjoiMjIyIn19.PJLXt45hIavHHN2kC8OZQUyou-qzAB15BBmK_25i31A",
+   "id_barang": "333",
+   # "nama_barang": "Pulpennnnnnnnnnnnn",
+   "aksi": "hapus"
+}
+
+###
+GET http://192.168.56.72/jwt-toko/server/server.php?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE2MDk4ODEsImV4cCI6MTczMTYxMzQ4MSwiaXNzIjoiUmVzdEFwaUF1dGhKV1QiLCJkYXRhIjp7ImlkX3BlbmdndW5hIjoiMTExIiwicGluIjoiMjIyIn19.IhfAHe9Ido1rXaxRAwgk_2SWHKR8UsDHZ5nuzVaV-j4###
+
+###
+GET http://192.168.56.72/jwt-toko/server/server.php?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE2MDk4ODEsImV4cCI6MTczMTYxMzQ4MSwiaXNzIjoiUmVzdEFwaUF1dGhKV1QiLCJkYXRhIjp7ImlkX3BlbmdndW5hIjoiMTExIiwicGluIjoiMjIyIn19.IhfAHe9Ido1rXaxRAwgk_2SWHKR8UsDHZ5nuzVaV-j4&aksi=tampil&id_barang=111

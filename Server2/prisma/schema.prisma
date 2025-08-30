@@ -3,30 +3,31 @@ generator client {
 }
 
 datasource db {
-  provider          = "mysql"
-  url               = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model foodorder {
-  order_id    Int      @id @default(autoincrement())
-  ticket_code String
-  food_items  String   @db.LongText
-  total_price Decimal
-  created_at  DateTime @default(now())
+  order_id    Int       @id @default(autoincrement())
+  ticket_code String    @db.VarChar(255)
+  food_items  Json      @db.Json
+  total_price Decimal   @db.Decimal(10, 2)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model menu {
   food_id   Int     @id @default(autoincrement())
-  food_name String
-  price     Int
+  food_name String  @db.VarChar(255)
+  price     Decimal @db.Decimal(10, 2)
   desc      String?
-  image_url String
+  image_url String  @db.VarChar(255)
 }
 
-model user {
+model users {
   user_id    Int      @id @default(autoincrement())
-  name       String
-  email      String   @unique
-  password   String
-  created_at DateTime @default(now())
+  name       String   @db.VarChar(255)
+  email      String   @unique(map: "idx_users_email") @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
 }

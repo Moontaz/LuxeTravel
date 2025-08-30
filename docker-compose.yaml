@@ -4,71 +4,81 @@ services:
       context: ./client
     ports:
       - "3000:3000"
-    depends_on:
-      - bus_api
-      - food_api
+    depends_on: []
     environment:
-      NEXT_PUBLIC_BUS_API_URL: http://bus_api:5001
-      NEXT_PUBLIC_FOOD_API_URL: http://food_api:5002
+      NEXT_PUBLIC_BUS_API_URL: http://10.0.251.79:5001
+      NEXT_PUBLIC_FOOD_API_URL: http://10.0.251.79:5002
+# services:
+#   client:
+#     build:
+#       context: ./client
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - bus_api
+#       - food_api
+#     environment:
+#       NEXT_PUBLIC_BUS_API_URL: http://bus_api:5001
+#       NEXT_PUBLIC_FOOD_API_URL: http://food_api:5002
 
-  bus_api:
-    build:
-      context: ./Server1
-    ports:
-      - "5001:5001"
-    environment:
-      DATABASE_URL: mysql://user:password@mysql_bus:3306/luxetravel_bus
-    depends_on:
-      - mysql_bus
+#   bus_api:
+#     build:
+#       context: ./Server1
+#     ports:
+#       - "5001:5001"
+#     environment:
+#       DATABASE_URL: mysql://user:password@mysql_bus:3306/luxetravel_bus
+#     depends_on:
+#       - mysql_bus
 
-  food_api:
-    build:
-      context: ./Server2
-    ports:
-      - "5002:5002"
-    environment:
-      DATABASE_URL: mysql://user:password@mysql_food:3306/luxetravel_food
-    depends_on:
-      - mysql_food
+#   food_api:
+#     build:
+#       context: ./Server2
+#     ports:
+#       - "5002:5002"
+#     environment:
+#       DATABASE_URL: mysql://user:password@mysql_food:3306/luxetravel_food
+#     depends_on:
+#       - mysql_food
 
-  mysql_bus:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: luxetravel_bus
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_bus_data:/var/lib/mysql
-      - ./database_backup_bus.sql:/docker-entrypoint-initdb.d/database_backup_bus.sql
+#   mysql_bus:
+#     image: mysql:8.0
+#     environment:
+#       MYSQL_ROOT_PASSWORD: password
+#       MYSQL_DATABASE: luxetravel_bus
+#       MYSQL_USER: user
+#       MYSQL_PASSWORD: password
+#     ports:
+#       - "3307"
+#     volumes:
+#       - mysql_bus_data:/var/lib/mysql
+#       - ./database_backup_bus.sql:/docker-entrypoint-initdb.d/database_backup_bus.sql
 
-  mysql_food:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: luxetravel_food
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    ports:
-      - "3308:3306"
-    volumes:
-      - mysql_food_data:/var/lib/mysql
-      - ./database_backup_food.sql:/docker-entrypoint-initdb.d/database_backup_food.sql
+#   mysql_food:
+#     image: mysql:8.0
+#     environment:
+#       MYSQL_ROOT_PASSWORD: password
+#       MYSQL_DATABASE: luxetravel_food
+#       MYSQL_USER: user
+#       MYSQL_PASSWORD: password
+#     ports:
+#       - "3308"
+#     volumes:
+#       - mysql_food_data:/var/lib/mysql
+#       - ./database_backup_food.sql:/docker-entrypoint-initdb.d/database_backup_food.sql
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    environment:
-      PMA_HOSTS: mysql_bus,mysql_food
-      PMA_USER: user
-      PMA_PASSWORD: password
-    ports:
-      - "8080:80"
-    depends_on:
-      - mysql_bus
-      - mysql_food
+#   phpmyadmin:
+#     image: phpmyadmin/phpmyadmin
+#     environment:
+#       PMA_HOSTS: mysql_bus,mysql_food
+#       PMA_USER: user
+#       PMA_PASSWORD: password
+#     ports:
+#       - "8080:80"
+#     depends_on:
+#       - mysql_bus
+#       - mysql_food
 
-volumes:
-  mysql_bus_data:
-  mysql_food_data:
+# volumes:
+#   mysql_bus_data:
+#   mysql_food_data:

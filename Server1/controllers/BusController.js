@@ -19,8 +19,8 @@ exports.getBuses = async (req, res) => {
       id: bus.bus_id,
       name: bus.bus_name,
       departureTime: bus.departure_time,
-      origin: bus.route.departure_city.city_name,
-      destination: bus.route.arrival_city.city_name,
+      origin: bus.route?.departure_city?.city_name || null,
+      destination: bus.route?.arrival_city?.city_name || null,
       price: bus.price,
       available_seat: bus.available_seats,
       seat_capacity: bus.seat_capacity,
@@ -29,7 +29,7 @@ exports.getBuses = async (req, res) => {
     logger.info("Successfully fetched all buses");
     res.status(200).json(formattedBuses);
   } catch (error) {
-    logger.error(`Error fetching buses: ${error.message}`);
+    logger.error(`Error fetching buses: ${error.stack}`);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -37,7 +37,7 @@ exports.getBuses = async (req, res) => {
 // Function to get bus by ID
 exports.getBusById = async (req, res) => {
   try {
-    const bus = await prisma.Buses.findUnique({
+    const bus = await prisma.buses.findUnique({
       where: { bus_id: parseInt(req.params.id) },
     });
 
@@ -49,19 +49,7 @@ exports.getBusById = async (req, res) => {
     logger.info(`Successfully fetched bus with ID: ${req.params.id}`);
     res.status(200).json(bus);
   } catch (error) {
-    logger.error(`Error fetching bus by ID: ${error.message}`);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-// Function to get all cities
-exports.getCities = async (req, res) => {
-  try {
-    const cities = await prisma.cities.findMany();
-    logger.info("Successfully fetched all cities");
-    res.status(200).json(cities);
-  } catch (error) {
-    logger.error(`Error fetching cities: ${error.message}`);
+    logger.error(`Error fetching bus by ID: ${error.stack}`);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
