@@ -83,7 +83,7 @@ app.use("/api/food", menuRoutes, foodOrderRoutes); // Food API
           options: { navigation: { name: "Order", icon: "ShoppingCart" } },
         },
         {
-          resource: { model: getModelByName("user"), client: prisma },
+          resource: { model: getModelByName("users"), client: prisma },
           options: { navigation: { name: "User", icon: "User" } },
         },
       ],
