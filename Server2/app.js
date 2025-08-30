@@ -12,10 +12,22 @@ const app = express();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const allowedOrigins = [
+  "https://luxetravel.moongo.my.id",
+  "http://localhost:3000", // untuk dev Next.js
+];
+
 app.use(
   cors({
-    origin: true,
-    credentials: true,
+    origin: (origin, callback) => {
+      // Jika origin ada di allowedOrigins atau request dari server langsung (no origin)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // biar cookies bisa dikirim
   })
 );
 app.use(express.json());
