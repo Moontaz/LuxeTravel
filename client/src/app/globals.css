@@ -1,17 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #cbff3e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #cbff3e;
+    /* --midground: #cbff3e; */
   }
 }
 
@@ -84,12 +85,45 @@ body {
   }
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
+/* Headings */
+h1 {
+  font-weight: 500;
+  font-size: 72px;
+  line-height: 95%;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 105%;
+  letter-spacing: -0.03em;
+}
+
+h3 {
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 115%;
+  letter-spacing: -0.03em;
+}
+
+h4 {
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 135%;
+  letter-spacing: -0.03em;
+}
+
+h5 {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 135%;
+  letter-spacing: -0.03em;
+}
+
 h6 {
-  font-family: "Playfair Display", serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 135%;
   letter-spacing: -0.03em;
 }

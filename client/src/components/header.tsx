@@ -48,12 +48,10 @@ const Header = () => {
   };
 
   return (
-    <header className="py-6 border-b border-gray-200 bg-white z-40">
+    <header className="fixed top-0 left-0 w-full py-6 border-b border-gray-200 bg-white z-50">
       <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">
         <Link href="/">
-          <h1 className="text-2xl font-bold tracking-tight mb-4 sm:mb-0 text-primary">
-            LUXE TRAVEL
-          </h1>
+          <h5 className="mb-4 sm:mb-0 text-primary">LUXE TRAVEL</h5>
         </Link>
         <nav className="space-x-2 flex flex-wrap justify-center text-primary">
           {userInfo ? (

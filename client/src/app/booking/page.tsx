@@ -13,8 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { CalendarIcon } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarIcon, ArrowLeftRight, ArrowRight } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -24,8 +33,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import Image from "next/image";
 
 const BookingPage = () => {
+  const [activeTab, setActiveTab] = useState("bus");
   const { booking, setBooking } = useBooking();
   const router = useRouter();
 
@@ -128,98 +139,180 @@ const BookingPage = () => {
     router.push("/booking/bus");
   };
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
+    <div className="min-w-screen bg-white text-gray-900 font-sans">
       <Header />
 
       {/* Booking Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto shadow-lg">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold mb-6 text-center">
-                Reserve Your Seat
-              </h3>
-              <form
-                onSubmit={handleSearch}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      <section className="min-h-screen w-full py-16 flex items-end align-bottom justify-end">
+        <Image
+          src="/images/bg3.png"
+          alt="Login BG-Luxe Travel"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="container max-w-[1416px] max-h-[376px] mx-auto px-4 z-10 relative">
+          <Tabs defaultValue="bus">
+            <TabsList className="rounded-none h-[56px] p-0">
+              <TabsTrigger
+                value="bus"
+                className="rounded-none w-[160px] h-full flex flex-row gap-5 items-center justify-start pl-6"
               >
-                <div className="space-y-2">
-                  <label htmlFor="from" className="text-sm font-bold">
-                    From
-                  </label>
-                  <Select onValueChange={setOrigin}>
-                    <SelectTrigger id="from">
-                      <SelectValue placeholder="Select origin" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map((item) => (
-                        <SelectItem key={item.city_id} value={item.city_name}>
-                          {item.city_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="to" className="text-sm font-bold">
-                    To
-                  </label>
-                  <Select onValueChange={setDestination}>
-                    <SelectTrigger id="to">
-                      <SelectValue placeholder="Select destination" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map((item) => (
-                        <SelectItem key={item.city_id} value={item.city_name}>
-                          {item.city_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="date" className="text-sm font-bold">
-                    Date
-                  </label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <div className="relative">
-                        <Input
-                          type="date"
-                          id="date"
-                          className="w-full cursor-pointer z-40"
-                          placeholder="Select date"
-                          value={date ? format(date, "yyyy-MM-dd") : ""}
-                          readOnly
-                        />
-                        <CalendarIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold">&nbsp;</label>
-                  <Button
-                    type="submit"
-                    className="w-full h-[40px] font-bold transition-all duration-200 hover:bg-primary/90 active:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                <Image
+                  src="/icons/guidance_bus.svg"
+                  alt="guidance_bus"
+                  width={24}
+                  height={24}
+                />
+                <h5 className="font-normal text-xl">Bus</h5>
+              </TabsTrigger>
+              <TabsTrigger
+                value="plane"
+                className="rounded-none w-[160px] h-full flex flex-row gap-5 items-center justify-start pl-6 bg-black"
+                disabled
+              >
+                <Image
+                  src="/icons/guidance_plane.svg"
+                  alt="guidance_plane"
+                  width={24}
+                  height={24}
+                />
+                <h5 className="font-normal text-xl">Plane</h5>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="bus" className="m-0">
+              <Card className="rounded-none shadow-sm w-full">
+                <CardContent className="p-6 h-full">
+                  <form
+                    onSubmit={handleSearch}
+                    className="relative w-full h-full flex flex-col items-end gap-4 justify-between"
                   >
-                    Search
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                    <div className="relative w-full h-full flex flex-row justify-between">
+                      <div className="relative flex flex-col lg:flex-row gap-8 items-center">
+                        {/* From */}
+                        <div className="border border-gray-400 p-6 rounded-none flex flex-col gap-4 w-[25rem]">
+                          <label
+                            htmlFor="from"
+                            className="text-base uppercase text-gray-500"
+                          >
+                            FROM
+                          </label>
+                          <Select onValueChange={setOrigin}>
+                            <SelectTrigger
+                              id="from"
+                              className="text-h4 text-[2.5rem] font-semibold border-none p-0 focus:ring-0"
+                            >
+                              <SelectValue placeholder="Select origin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {cities.map((item: any) => (
+                                <SelectItem
+                                  key={item.city_id}
+                                  value={item.city_name}
+                                >
+                                  {item.city_name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <span className="text-base text-gray-500">
+                            SBY, East Java, Indonesia
+                          </span>
+                        </div>
+
+                        {/* Swap Icon */}
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[4.5rem] h-[4.5rem] rounded-full border border-gray-400 flex items-center justify-center text-gray-500">
+                          <ArrowLeftRight size={32} />
+                        </div>
+
+                        {/* To */}
+                        <div className="border border-gray-400 p-6 rounded-none flex flex-col gap-4 w-[25rem]">
+                          <label
+                            htmlFor="to"
+                            className="text-base uppercase text-gray-500"
+                          >
+                            TO
+                          </label>
+                          <Select onValueChange={setDestination}>
+                            <SelectTrigger
+                              id="to"
+                              className="text-h4 text-[2.5rem] font-semibold border-none p-0 focus:ring-0"
+                            >
+                              <SelectValue placeholder="Select destination" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {cities.map((item: any) => (
+                                <SelectItem
+                                  key={item.city_id}
+                                  value={item.city_name}
+                                >
+                                  {item.city_name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <span className="text-base text-gray-500">
+                            MLG, East Java, Indonesia
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Date */}
+                      <div className="border border-gray-400 p-6 rounded-none flex flex-col gap-4 w-[25rem] h-full">
+                        <label
+                          htmlFor="date"
+                          className="text-base uppercase text-gray-500"
+                        >
+                          Date
+                        </label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <div className="relative">
+                              <Input
+                                type="text"
+                                id="date"
+                                className="text-h4 text-[2.5rem] font-semibold border-none p-0 focus:ring-0"
+                                value={date ? format(date, "EEE, dd MMM") : ""}
+                                placeholder="Select date"
+                                readOnly
+                              />
+                              <CalendarIcon
+                                className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                size={32}
+                              />
+                            </div>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={date}
+                              onSelect={setDate}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <div className="flex flex-row justify-between w-1/4">
+                          <span className="text-base text-gray-500">Prev</span>
+                          <span className="text-base text-gray-500">Next</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Search Button */}
+                    <div className="lg:col-span-4">
+                      <Button
+                        type="submit"
+                        className="w-full h-[50px] flex flex-row justify-between gap-10 rounded-none p-6 font-normal bg-[#CBFF3E] text-primary hover:bg-[#CBFF3E]/80 hover:text-primary/80 text-lg transition-all duration-200"
+                      >
+                        Search
+                        <ArrowRight size={20} />
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
           {/* Search Results */}
           {showResults && (
