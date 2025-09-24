@@ -10,6 +10,7 @@ const app = express();
 
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const serverless = require("serverless-http");
 
 const allowedOrigins = [
   "https://luxetravel.moongo.my.id",
@@ -133,9 +134,10 @@ app.use("/api/bus", busRoutes);
   }
 })();
 
-const PORT = process.env.PORT || 6000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Bus Ticketing API running on port ${PORT}`);
-  logger.info(`Bus Ticketing API running on port ${PORT}`);
-  console.log(`AdminJS started on http://localhost:${PORT}/admin`);
-});
+// const PORT = process.env.PORT || 6000;
+// app.listen(PORT, "0.0.0.0", () => {
+//   console.log(`Bus Ticketing API running on port ${PORT}`);
+//   logger.info(`Bus Ticketing API running on port ${PORT}`);
+//   console.log(`AdminJS started on http://localhost:${PORT}/admin`);
+// });
+export default serverless(app);
