@@ -35,9 +35,9 @@ app.use(
 app.use(express.json());
 
 app.use((req, res, next) => {
-  console.log("Origin:", req.headers.origin);
-  console.log("Referer:", req.headers.referer);
-  console.log("Host:", req.headers.host);
+  logger.info("Origin:", req.headers.origin);
+  logger.info("Referer:", req.headers.referer);
+  logger.info("Host:", req.headers.host);
   next();
 });
 
@@ -71,7 +71,7 @@ app.use("/api/bus", busRoutes);
 // const PORT = process.env.PORT || 6000;
 // app.listen(PORT, "0.0.0.0", () => {
 //   console.log(`Bus Ticketing API running on port ${PORT}`);
-//   logger.info(`Bus Ticketing API running on port ${PORT}`);
+logger.info(`Bus Ticketing API running`);
 //   console.log(`AdminJS started on http://localhost:${PORT}/admin`);
 // });
 export default serverless(app);
