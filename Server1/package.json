@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
     "sequelize": "^6.37.3",
+    "serverless-http": "^4.0.0",
     "winston": "^3.14.2"
   },
   "devDependencies": {

@@ -68,66 +68,6 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes); // User Auth API
 app.use("/api/food", menuRoutes, foodOrderRoutes); // Food API
 
-// AdminJS
-(async () => {
-  try {
-    const AdminJS = (await import("adminjs")).default;
-    const AdminJSExpress = await import("@adminjs/express");
-    const { Resource, Database, getModelByName } = await import(
-      "@adminjs/prisma"
-    );
-
-    // Register Prisma adapter with AdminJS
-    AdminJS.registerAdapter({ Resource, Database });
-
-    // AdminJS setup with Prisma resources
-    const adminJs = new AdminJS({
-      resources: [
-        {
-          resource: { model: getModelByName("menu"), client: prisma },
-          options: { navigation: { name: "Menu", icon: "RestaurantMenu" } },
-        },
-        {
-          resource: { model: getModelByName("foodorder"), client: prisma },
-          options: { navigation: { name: "Order", icon: "ShoppingCart" } },
-        },
-        {
-          resource: { model: getModelByName("users"), client: prisma },
-          options: { navigation: { name: "User", icon: "User" } },
-        },
-      ],
-      rootPath: "/admin",
-    });
-
-    const ADMIN = {
-      email: "contoh@contoh.com",
-      password: await bcrypt.hash("inicumancontoh", 10),
-    };
-
-    // AdminJS router
-    const adminRouter = AdminJSExpress.buildAuthenticatedRouter(adminJs, {
-      authenticate: async (email, password) => {
-        if (
-          email === ADMIN.email &&
-          (await bcrypt.compare(password, ADMIN.password))
-        ) {
-          return ADMIN;
-        }
-        return null;
-      },
-      cookieName: "adminjs",
-      cookiePassword: "session-secret-password",
-    });
-
-    // Use AdminJS router with auth
-    app.use(adminJs.options.rootPath, adminRouter);
-
-    console.log("AdminJS is running on /admin");
-  } catch (error) {
-    console.error("Error setting up AdminJS:", error);
-  }
-})();
-
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
   console.log(`Food Ordering API running on port ${PORT}`);
