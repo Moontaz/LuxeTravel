@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
+const RedisStore = require("connect-redis").default;
+const { createClient } = require("redis");
 const bcrypt = require("bcrypt");
 const authRoutes = require("./routes/authRoutes.js");
 const busRoutes = require("./routes/busRoutes.js");
@@ -17,6 +19,21 @@ const allowedOrigins = [
   "https://luxetravel-client.vercel.app",
   "http://localhost:3000", // untuk dev Next.js
 ];
+// Setup Redis client
+let redisClient = createClient({
+  url: process.env.REDIS_URL,
+});
+redisClient.connected().catch(console.error);
+
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET || "secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: true },
+  })
+);
 
 app.use(
   cors({
