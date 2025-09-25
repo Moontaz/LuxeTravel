@@ -1,19 +1,18 @@
-const winston = require("winston");
+const { createLogger, format, transports } = require("winston");
 
-// Konfigurasi logger
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
+const logger = createLogger({
+  level: "info", // bisa diganti ke 'debug', 'warn', 'error'
+  format: format.combine(
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    format.printf(({ level, message, timestamp }) => {
+      return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+    })
   ),
   transports: [
-    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-    new winston.transports.File({ filename: "logs/combined.log" }),
+    new transports.Console(),
+    // kalau butuh simpan ke file lokal:
+    // new transports.File({ filename: "logs/app.log" })
   ],
 });
-
-// Log info saat server mulai
-logger.info("Logger initialized.");
 
 module.exports = logger;

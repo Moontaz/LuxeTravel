@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const session = require("express-session");
+// const session = require("express-session");
 const bcrypt = require("bcrypt");
 const authRoutes = require("./routes/authRoutes.js");
 const menuRoutes = require("./routes/menuRoutes.js");
@@ -35,23 +35,23 @@ app.use(
 app.use(express.json());
 
 app.use((req, res, next) => {
-  console.log("Origin:", req.headers.origin);
-  console.log("Referer:", req.headers.referer);
-  console.log("Host:", req.headers.host);
+  logger.info("Origin:", req.headers.origin);
+  logger.info("Referer:", req.headers.referer);
+  logger.info("Host:", req.headers.host);
   next();
 });
 
 // Configure session for auth
-app.use(
-  session({
-    secret: "your-secret-key",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: "your-secret-key",
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: {
+//       secure: process.env.NODE_ENV === "production",
+//     },
+//   })
+// );
 
 // Middleware to log incoming requests
 app.use((req, res, next) => {
@@ -68,9 +68,12 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes); // User Auth API
 app.use("/api/food", menuRoutes, foodOrderRoutes); // Food API
 
-const PORT = process.env.PORT || 7000;
-app.listen(PORT, () => {
-  console.log(`Food Ordering API running on port ${PORT}`);
-  logger.info(`Food Ordering API running on port ${PORT}`);
-  console.log(`AdminJS started on http://localhost:${PORT}/admin`);
-});
+module.exports = app;
+logger.info(`Food Ordering API running`);
+
+// const PORT = process.env.PORT || 7000;
+// app.listen(PORT, () => {
+//   console.log(`Food Ordering API running on port ${PORT}`);
+//   logger.info(`Food Ordering API running on port ${PORT}`);
+//   console.log(`AdminJS started on http://localhost:${PORT}/admin`);
+// });

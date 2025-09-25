@@ -69,10 +69,11 @@ app.use("/api/bus", busRoutes);
 
 // Export langsung Express app
 module.exports = app;
+logger.info(`Bus Ticketing API running`);
 
 // const PORT = process.env.PORT || 6000;
 // app.listen(PORT, "0.0.0.0", () => {
 //   console.log(`Bus Ticketing API running on port ${PORT}`);
-logger.info(`Bus Ticketing API running`);
+// logger.info(`Bus Ticketing API running`);
 //   console.log(`AdminJS started on http://localhost:${PORT}/admin`);
 // });
