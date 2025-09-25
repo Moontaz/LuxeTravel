@@ -62,7 +62,7 @@ app.use((req, res, next) => {
 // Health check route
 app.get("/", (req, res) => {
   logger.info("Health check request received.");
-  res.send("running...");
+  res.send("server is running...");
 });
 
 app.use("/api/auth", authRoutes); // User Auth API
