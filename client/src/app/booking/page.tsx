@@ -12,6 +12,11 @@ import BookingForm from "@/components/BookingForm";
 import TripCard from "@/components/TripCard";
 import GSAPWrapper from "@/components/GSAPWrapper";
 import { getAllBuses, getAllCities } from "@/api/bus";
+import {
+  getCachedCityData,
+  getCachedBusData,
+  logCookieState,
+} from "@/lib/cookieHandler";
 
 const BookingPage = () => {
   const { setBooking } = useBooking();
@@ -37,21 +42,38 @@ const BookingPage = () => {
         );
         console.log("===================================");
 
-        // Fetch buses (with caching)
-        const busResult = await getAllBuses();
-        if (busResult.success) {
-          setBuses(busResult.data as Bus[]);
+        // Check cache first for better performance
+        const cachedBuses = getCachedBusData();
+        const cachedCities = getCachedCityData();
+
+        if (cachedBuses) {
+          console.log("Using cached bus data:", cachedBuses.length, "buses");
+          setBuses(cachedBuses as Bus[]);
         } else {
-          console.error("Error fetching bus data:", busResult.error);
+          // Fetch buses (with caching)
+          const busResult = await getAllBuses();
+          if (busResult.success) {
+            setBuses(busResult.data as Bus[]);
+          } else {
+            console.error("Error fetching bus data:", busResult.error);
+          }
         }
 
-        // Fetch cities (with 24h caching - optimized for frequent use)
-        const cityResult = await getAllCities();
-        if (cityResult.success) {
-          setCities(cityResult.data as City[]);
+        if (cachedCities) {
+          console.log("Using cached city data:", cachedCities.length, "cities");
+          setCities(cachedCities as City[]);
         } else {
-          console.error("Error fetching city data:", cityResult.error);
+          // Fetch cities (with 24h caching - optimized for frequent use)
+          const cityResult = await getAllCities();
+          if (cityResult.success) {
+            setCities(cityResult.data as City[]);
+          } else {
+            console.error("Error fetching city data:", cityResult.error);
+          }
         }
+
+        // Debug cookie state
+        logCookieState();
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -128,11 +150,11 @@ const BookingPage = () => {
       // Store complete route information
       bus_name: busName,
       departure_city: departureCity,
-      destination_city: destinationCity,
+      arrival_city: destinationCity,
       route: {
         id: trip.id?.toString() || "route123",
         departure_city: departureCity,
-        destination_city: destinationCity,
+        arrival_city: destinationCity,
       },
     });
 
@@ -144,7 +166,7 @@ const BookingPage = () => {
     console.log("Route object:", {
       id: trip.id?.toString() || "route123",
       departure_city: departureCity,
-      destination_city: destinationCity,
+      arrival_city: destinationCity,
     });
     console.log("=========================");
 

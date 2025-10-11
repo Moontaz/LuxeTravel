@@ -135,8 +135,8 @@ const BusBookingPage = () => {
         "Unknown";
 
       const destinationCity =
-        booking.route?.destination_city ||
-        booking.destination_city ||
+        booking.route?.arrival_city ||
+        booking.arrival_city ||
         booking.bus?.destination ||
         "Unknown";
 
@@ -152,11 +152,11 @@ const BusBookingPage = () => {
         // Ensure route data is preserved and updated
         bus_name: busName,
         departure_city: departureCity,
-        destination_city: destinationCity,
+        arrival_city: destinationCity,
         route: {
           id: booking.route?.id || booking.bus?.id?.toString() || "route123",
           departure_city: departureCity,
-          destination_city: destinationCity,
+          arrival_city: destinationCity,
         },
       });
 
@@ -168,7 +168,7 @@ const BusBookingPage = () => {
       console.log("Route object:", {
         id: booking.route?.id || booking.bus?.id?.toString() || "route123",
         departure_city: departureCity,
-        destination_city: destinationCity,
+        arrival_city: destinationCity,
       });
       console.log("=============================");
     }

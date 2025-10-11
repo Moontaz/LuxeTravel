@@ -1,5 +1,10 @@
 import { api } from "./axiosInstance";
-import { getCachedData, setCachedData } from "@/utils/cookies";
+import {
+  cacheCityData,
+  getCachedCityData,
+  cacheBusData,
+  getCachedBusData,
+} from "@/lib/cookieHandler";
 import { handleApiError } from "@/utils/errorHandler";
 
 export interface BusResponse {
@@ -11,16 +16,16 @@ export interface BusResponse {
 // Get all buses with caching
 export const getAllBuses = async (): Promise<BusResponse> => {
   try {
-    // Check cache first
-    const cached = getCachedData("buses");
+    // Check cache first using new cookie handler
+    const cached = getCachedBusData();
     if (cached) {
       return { success: true, data: cached };
     }
 
     const response = await api.get("/api/bus/buses");
 
-    // Cache the result for 2 hours
-    setCachedData("buses", response.data, 2);
+    // Cache the result using new cookie handler
+    cacheBusData(response.data);
 
     return { success: true, data: response.data };
   } catch (error) {
@@ -45,16 +50,16 @@ export const getBusById = async (
 // Get all cities with caching (optimized for frequent use)
 export const getAllCities = async (): Promise<BusResponse> => {
   try {
-    // Check cache first - cities don't change often, cache for 24 hours
-    const cached = getCachedData("cities");
+    // Check cache first using new cookie handler - cities don't change often
+    const cached = getCachedCityData();
     if (cached) {
       return { success: true, data: cached };
     }
 
     const response = await api.get("/api/bus/cities");
 
-    // Cache the result for 24 hours (cities rarely change)
-    setCachedData("cities", response.data, 24);
+    // Cache the result using new cookie handler (cities rarely change)
+    cacheCityData(response.data);
 
     return { success: true, data: response.data };
   } catch (error) {

@@ -1,5 +1,5 @@
 import { api } from "./axiosInstance";
-import { getAuthTokens } from "@/utils/cookies";
+import { getAuthTokens } from "@/lib/cookieHandler";
 
 export interface TicketData {
   user_id: number;
@@ -9,7 +9,7 @@ export interface TicketData {
   date: string;
   bus_name: string;
   departure_city: string;
-  destination_city: string;
+  arrival_city: string; // Changed from destination_city to arrival_city
   has_addons: boolean;
 }
 
@@ -42,7 +42,7 @@ export const createTicket = async (
       date: ticketData.date,
       bus_name: ticketData.bus_name,
       departure_city: ticketData.departure_city,
-      destination_city: ticketData.destination_city,
+      arrival_city: ticketData.arrival_city, // Changed from destination_city to arrival_city
       has_addons: ticketData.has_addons,
     });
 

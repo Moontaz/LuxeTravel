@@ -86,18 +86,28 @@ exports.createTicket = async (req, res) => {
       date,
       bus_name,
       departure_city,
-      destination_city,
+      arrival_city, // Changed from destination_city to arrival_city
       has_addons,
     } = req.body;
 
-    // Validate required fields
-    if (!user_id || !bus_id || !no_seat) {
+    // Validate required fields according to Supabase schema
+    if (
+      !user_id ||
+      !bus_id ||
+      !no_seat ||
+      !total_price ||
+      !date ||
+      !bus_name ||
+      !departure_city ||
+      !arrival_city
+    ) {
       logger.warn(
-        `Missing required fields in createTicket: user_id=${user_id}, bus_id=${bus_id}, no_seat=${no_seat}`
+        `Missing required fields in createTicket: user_id=${user_id}, bus_id=${bus_id}, no_seat=${no_seat}, total_price=${total_price}, date=${date}, bus_name=${bus_name}, departure_city=${departure_city}, arrival_city=${arrival_city}`
       );
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: user_id, bus_id, no_seat",
+        message:
+          "Missing required fields: user_id, bus_id, no_seat, total_price, date, bus_name, departure_city, arrival_city",
       });
     }
 
@@ -133,7 +143,7 @@ exports.createTicket = async (req, res) => {
       );
     }
 
-    // Create ticket with all fields
+    // Create ticket with all required fields according to Supabase schema
     const newTicket = await prisma.tickets.create({
       data: {
         user_id: Number(user_id),
@@ -141,13 +151,11 @@ exports.createTicket = async (req, res) => {
         no_seat,
         total_price: Number(total_price),
         ticket_code,
-        date: date ? new Date(date) : null,
-        departure_date: date ? new Date(date) : null,
-        departure_time: null, // Can be set separately if needed
-        bus_name,
-        departure_city,
-        destination_city,
-        has_addons: Boolean(has_addons),
+        date: new Date(date), // Required field - not null
+        bus_name, // Required field - not null
+        departure_city, // Required field - not null
+        arrival_city, // Required field - not null (changed from destination_city)
+        has_addons: Boolean(has_addons) || false, // Default to false if not provided
       },
     });
 
@@ -206,11 +214,11 @@ exports.getTicketsByUserId = async (req, res) => {
       },
     });
 
-    // Format tickets to include new fields
+    // Format tickets to include all fields according to Supabase schema
     const formattedTickets = tickets.map((ticket) => ({
       ...ticket,
       departure_city: ticket.departure_city,
-      destination_city: ticket.destination_city,
+      arrival_city: ticket.arrival_city, // Changed from destination_city to arrival_city
       bus_name: ticket.bus_name,
       date: ticket.date,
       has_addons: ticket.has_addons,

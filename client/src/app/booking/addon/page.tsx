@@ -198,7 +198,7 @@ const FoodBookingPage = () => {
       console.log("Selected food:", selectedFood);
       console.log("Route data:", booking.route);
       console.log("Departure city:", booking.departure_city);
-      console.log("Destination city:", booking.destination_city);
+      console.log("Destination city:", booking.arrival_city);
       console.log("=============================");
 
       // Update the booking context with selected food while preserving route data
@@ -209,14 +209,14 @@ const FoodBookingPage = () => {
         bus_name: booking.bus_name || booking.bus?.name || "Unknown Bus",
         departure_city:
           booking.departure_city || booking.bus?.origin || "Unknown",
-        destination_city:
-          booking.destination_city || booking.bus?.destination || "Unknown",
+        arrival_city:
+          booking.arrival_city || booking.bus?.destination || "Unknown",
         route: booking.route || {
           id: booking.bus?.id?.toString() || "route123",
           departure_city:
             booking.departure_city || booking.bus?.origin || "Unknown",
-          destination_city:
-            booking.destination_city || booking.bus?.destination || "Unknown",
+          arrival_city:
+            booking.arrival_city || booking.bus?.destination || "Unknown",
         },
       });
 
@@ -232,7 +232,7 @@ const FoodBookingPage = () => {
       );
       console.log(
         "Destination city:",
-        booking.destination_city || booking.bus?.destination || "Unknown"
+        booking.arrival_city || booking.bus?.destination || "Unknown"
       );
       console.log(
         "Route object:",
@@ -240,8 +240,8 @@ const FoodBookingPage = () => {
           id: booking.bus?.id?.toString() || "route123",
           departure_city:
             booking.departure_city || booking.bus?.origin || "Unknown",
-          destination_city:
-            booking.destination_city || booking.bus?.destination || "Unknown",
+          arrival_city:
+            booking.arrival_city || booking.bus?.destination || "Unknown",
         }
       );
       console.log("===========================");

@@ -12,11 +12,11 @@ export interface BookingData {
   route?: {
     id: string;
     departure_city: string;
-    destination_city: string;
+    arrival_city: string;
   };
   bus_name?: string;
   departure_city?: string;
-  destination_city?: string;
+  arrival_city?: string;
 }
 
 export interface BookingResponse {

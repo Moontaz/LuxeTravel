@@ -1,5 +1,9 @@
 import { api, foodApi } from "./axiosInstance";
-import { setAuthTokens, clearAuthTokens } from "@/utils/cookies";
+import {
+  setAuthTokens,
+  cacheUserData,
+  clearAllUserData,
+} from "@/lib/cookieHandler";
 
 export interface LoginData {
   email: string;
@@ -35,6 +39,15 @@ export const login = async (loginData: LoginData): Promise<AuthResponse> => {
     // Set both tokens using centralized cookie utility
     setAuthTokens(response1.data.token, response2.data.token);
 
+    // Cache user data for better performance
+    cacheUserData({
+      user_id: response1.data.user?.user_id,
+      name: response1.data.user?.name,
+      email: response1.data.user?.email,
+      token1: response1.data.token,
+      token2: response2.data.token,
+    });
+
     return { success: true, data: "Login Successful" };
   } catch (error) {
     console.error("Login error:", error);
@@ -63,8 +76,8 @@ export const register = async (
 // Logout function
 export const logout = async (): Promise<AuthResponse> => {
   try {
-    // Clear auth tokens using centralized utility
-    clearAuthTokens();
+    // Clear all user data using centralized utility
+    clearAllUserData();
 
     return { success: true, data: "Logged out successfully" };
   } catch (error) {

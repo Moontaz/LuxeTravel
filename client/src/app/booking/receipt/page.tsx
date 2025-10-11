@@ -70,9 +70,9 @@ const ReceiptPage = () => {
     console.log("Bus name from context:", booking?.bus_name);
     console.log("Route object from context:", booking?.route);
     console.log("Route departure_city:", booking?.route?.departure_city);
-    console.log("Route destination_city:", booking?.route?.destination_city);
+    console.log("Route arrival_city:", booking?.route?.arrival_city);
     console.log("Departure city from context:", booking?.departure_city);
-    console.log("Destination city from context:", booking?.destination_city);
+    console.log("Arrival city from context:", booking?.arrival_city);
     console.log("Bus object:", booking?.bus);
     console.log("Bus origin:", booking?.bus?.origin);
     console.log("Bus destination:", booking?.bus?.destination);
@@ -92,9 +92,9 @@ const ReceiptPage = () => {
 
       // Check if we have city data in context
       const hasRouteData =
-        booking.route?.departure_city && booking.route?.destination_city;
+        booking.route?.departure_city && booking.route?.arrival_city;
       const hasIndividualCityData =
-        booking.departure_city && booking.destination_city;
+        booking.departure_city && booking.arrival_city;
       const hasBusCityData = booking.bus?.origin && booking.bus?.destination;
 
       // If we have bus data but no context city data, update the context
@@ -112,11 +112,11 @@ const ReceiptPage = () => {
         setBooking({
           ...booking,
           departure_city: booking.bus.origin,
-          destination_city: booking.bus.destination,
+          arrival_city: booking.bus.destination,
           route: {
             id: booking.route?.id || booking.bus.id?.toString() || "route123",
             departure_city: booking.bus.origin,
-            destination_city: booking.bus.destination,
+            arrival_city: booking.bus.destination,
           },
         });
         console.log("Updated context with bus data");
@@ -146,14 +146,14 @@ const ReceiptPage = () => {
                 setBooking({
                   ...booking,
                   departure_city: currentBus.origin,
-                  destination_city: currentBus.destination,
+                  arrival_city: currentBus.destination,
                   route: {
                     id:
                       booking.route?.id ||
                       currentBus.id?.toString() ||
                       "route123",
                     departure_city: currentBus.origin,
-                    destination_city: currentBus.destination,
+                    arrival_city: currentBus.destination,
                   },
                 });
                 console.log("Updated context with API data");
@@ -230,8 +230,8 @@ const ReceiptPage = () => {
         "Unknown";
 
       const destinationCity =
-        booking.route?.destination_city ||
-        booking.destination_city ||
+        booking.route?.arrival_city ||
+        booking.arrival_city ||
         booking.bus?.destination ||
         "Unknown";
 
@@ -269,7 +269,7 @@ const ReceiptPage = () => {
           : format(new Date(), "yyyy-MM-dd"),
         bus_name: booking.bus_name || booking.bus?.name || "Unknown Bus",
         departure_city: departureCity,
-        destination_city: destinationCity,
+        arrival_city: destinationCity,
         has_addons: has_addons,
       };
 
@@ -379,28 +379,25 @@ const ReceiptPage = () => {
                         // Priority 1: Route object from context
                         if (
                           booking.route?.departure_city &&
-                          booking.route?.destination_city
+                          booking.route?.arrival_city
                         ) {
                           console.log(
                             "Using route object data:",
                             booking.route.departure_city,
                             "→",
-                            booking.route.destination_city
+                            booking.route.arrival_city
                           );
-                          return `${booking.route.departure_city} → ${booking.route.destination_city}`;
+                          return `${booking.route.departure_city} → ${booking.route.arrival_city}`;
                         }
                         // Priority 2: Individual city fields from context
-                        if (
-                          booking.departure_city &&
-                          booking.destination_city
-                        ) {
+                        if (booking.departure_city && booking.arrival_city) {
                           console.log(
                             "Using individual city fields:",
                             booking.departure_city,
                             "→",
-                            booking.destination_city
+                            booking.arrival_city
                           );
-                          return `${booking.departure_city} → ${booking.destination_city}`;
+                          return `${booking.departure_city} → ${booking.arrival_city}`;
                         }
                         // Priority 3: Bus object fallback
                         if (booking.bus?.origin && booking.bus?.destination) {
@@ -418,7 +415,7 @@ const ReceiptPage = () => {
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           (booking.bus as any)?.departure_city &&
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          (booking.bus as any)?.destination_city
+                          (booking.bus as any)?.arrival_city
                         ) {
                           console.log(
                             "Using bus departure/destination fields:",
@@ -426,12 +423,12 @@ const ReceiptPage = () => {
                             (booking.bus as any).departure_city,
                             "→",
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            (booking.bus as any).destination_city
+                            (booking.bus as any).arrival_city
                           );
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           return `${(booking.bus as any).departure_city} → ${
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            (booking.bus as any).destination_city
+                            (booking.bus as any).arrival_city
                           }`;
                         }
                         // Final fallback

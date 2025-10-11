@@ -134,12 +134,12 @@ export interface BookingData {
   route?: {
     id: string;
     departure_city: string;
-    destination_city: string;
+    arrival_city: string;
   };
   // New fields for receipt page
   bus_name?: string;
   departure_city?: string;
-  destination_city?: string;
+  arrival_city?: string;
   busName?: string;
   departureRoute?: string;
   departureTime?: string | Date;
