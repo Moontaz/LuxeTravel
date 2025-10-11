@@ -176,11 +176,10 @@ exports.getTicketsByUserId = async (req, res) => {
     const formattedTickets = tickets.map((ticket) => ({
       ...ticket,
       departure_city: ticket.departure_city,
-      arrival_city: ticket.arrival_city,
+      destination_city: ticket.destination_city,
       bus_name: ticket.bus_name,
-      departure_date: ticket.departure_date,
-      departure_time: ticket.departure_time,
-      has_addons: ticket.has_addons,
+      date: ticket.date,
+      hasAddons: ticket.hasAddons,
     }));
 
     logger.info(`Successfully fetched tickets for user ID: ${userId}`);

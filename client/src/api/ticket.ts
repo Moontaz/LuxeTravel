@@ -25,7 +25,7 @@ export const createTicket = async (
   try {
     console.log("=== SENDING TICKET DATA TO SERVER ===", ticketData);
 
-    const response = await api.post("/api/ticket", {
+    const response = await api.post("/api/bus/ticket", {
       user_id: ticketData.user_id,
       bus_id: ticketData.bus_id,
       no_seat: ticketData.no_seat,
