@@ -1,4 +1,5 @@
 import { api } from "./axiosInstance";
+import { getAuthTokens } from "@/utils/cookies";
 
 export interface TicketData {
   user_id: number;
@@ -9,7 +10,7 @@ export interface TicketData {
   bus_name: string;
   departure_city: string;
   destination_city: string;
-  hasAddons: boolean;
+  has_addons: boolean;
 }
 
 export interface TicketResponse {
@@ -23,7 +24,15 @@ export const createTicket = async (
   ticketData: TicketData
 ): Promise<TicketResponse> => {
   try {
-    console.log("=== SENDING TICKET DATA TO SERVER ===", ticketData);
+    // Debug logging for token and payload
+    const { token1 } = getAuthTokens();
+    console.debug("=== CREATE TICKET DEBUG ===");
+    console.debug("Token present:", !!token1);
+    console.debug(
+      "Token preview:",
+      token1 ? `${token1.substring(0, 20)}...` : "No token"
+    );
+    console.debug("Payload:", ticketData);
 
     const response = await api.post("/api/bus/ticket", {
       user_id: ticketData.user_id,
@@ -34,13 +43,43 @@ export const createTicket = async (
       bus_name: ticketData.bus_name,
       departure_city: ticketData.departure_city,
       destination_city: ticketData.destination_city,
-      hasAddons: ticketData.hasAddons,
+      has_addons: ticketData.has_addons,
     });
 
     console.log("Ticket created successfully:", response.data);
     return { success: true, data: response.data };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error creating ticket:", error);
+
+    // Handle specific error cases
+    const errorResponse = error as { response?: { status?: number } };
+    if (errorResponse.response?.status === 401) {
+      console.error("Authentication failed - redirecting to login");
+      // Could trigger redirect to login page here
+      return {
+        success: false,
+        error: { message: "Please login first", code: "AUTH_REQUIRED" },
+      };
+    } else if (errorResponse.response?.status === 404) {
+      console.error("Route mismatch - endpoint not found");
+      return {
+        success: false,
+        error: {
+          message: "Service temporarily unavailable",
+          code: "ENDPOINT_NOT_FOUND",
+        },
+      };
+    } else if (errorResponse.response?.status === 500) {
+      console.error("Server error");
+      return {
+        success: false,
+        error: {
+          message: "Server error. Please try again later.",
+          code: "SERVER_ERROR",
+        },
+      };
+    }
+
     return { success: false, error };
   }
 };
@@ -50,10 +89,36 @@ export const getTicketsByUserId = async (
   userId: string | number
 ): Promise<TicketResponse> => {
   try {
+    // Debug logging for token
+    const { token1 } = getAuthTokens();
+    console.debug("=== GET TICKETS DEBUG ===");
+    console.debug("Token present:", !!token1);
+    console.debug("User ID:", userId);
+
     const response = await api.get(`/api/bus/tickets/${userId}`);
     return { success: true, data: response.data };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching tickets:", error);
+
+    // Handle specific error cases
+    const errorResponse = error as { response?: { status?: number } };
+    if (errorResponse.response?.status === 401) {
+      console.error("Authentication failed for getTicketsByUserId");
+      return {
+        success: false,
+        error: { message: "Please login first", code: "AUTH_REQUIRED" },
+      };
+    } else if (errorResponse.response?.status === 500) {
+      console.error("Server error in getTicketsByUserId");
+      return {
+        success: false,
+        error: {
+          message: "Server error. Please try again later.",
+          code: "SERVER_ERROR",
+        },
+      };
+    }
+
     return { success: false, error };
   }
 };

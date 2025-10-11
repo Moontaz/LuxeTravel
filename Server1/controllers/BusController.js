@@ -67,28 +67,43 @@ exports.getCities = async (req, res) => {
 };
 // Function to create a new ticket
 exports.createTicket = async (req, res) => {
-  const {
-    user_id,
-    bus_id,
-    no_seat,
-    total_price,
-    date,
-    bus_name,
-    departure_city,
-    destination_city,
-    hasAddons,
-  } = req.body;
-
   try {
+    // Check for auth token first
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      logger.warn("No token provided in createTicket request");
+      return res.status(401).json({
+        success: false,
+        message: "No token provided. Please login first.",
+      });
+    }
+
+    const {
+      user_id,
+      bus_id,
+      no_seat,
+      total_price,
+      date,
+      bus_name,
+      departure_city,
+      destination_city,
+      has_addons,
+    } = req.body;
+
     // Validate required fields
     if (!user_id || !bus_id || !no_seat) {
+      logger.warn(
+        `Missing required fields in createTicket: user_id=${user_id}, bus_id=${bus_id}, no_seat=${no_seat}`
+      );
       return res.status(400).json({
         success: false,
         message: "Missing required fields: user_id, bus_id, no_seat",
       });
     }
 
-    logger.info(`Attempting to create ticket for bus_id: ${bus_id}`);
+    logger.info(
+      `Attempting to create ticket for bus_id: ${bus_id}, user_id: ${user_id}`
+    );
 
     // Check if bus exists
     const bus = await prisma.buses.findUnique({
@@ -103,7 +118,7 @@ exports.createTicket = async (req, res) => {
       });
     }
 
-    // Generate random ticket code
+    // Generate randomized ticket code
     const ticket_code = `LUX-${Math.random()
       .toString(36)
       .substring(2, 10)
@@ -111,13 +126,14 @@ exports.createTicket = async (req, res) => {
 
     logger.info(`Generated ticket code: ${ticket_code}`);
 
-    // Skip food order check if hasAddons is false for efficiency
-    if (hasAddons === false) {
+    // Skip food order check if has_addons is false for efficiency
+    if (has_addons === false) {
       logger.info(
         `Skipping food order check for ticket ${ticket_code} - no addons`
       );
     }
 
+    // Create ticket with all fields
     const newTicket = await prisma.tickets.create({
       data: {
         user_id: Number(user_id),
@@ -125,11 +141,13 @@ exports.createTicket = async (req, res) => {
         no_seat,
         total_price: Number(total_price),
         ticket_code,
-        date: new Date(date),
+        date: date ? new Date(date) : null,
+        departure_date: date ? new Date(date) : null,
+        departure_time: null, // Can be set separately if needed
         bus_name,
         departure_city,
         destination_city,
-        hasAddons: Boolean(hasAddons),
+        has_addons: Boolean(has_addons),
       },
     });
 
@@ -140,10 +158,13 @@ exports.createTicket = async (req, res) => {
       message: "Ticket created successfully",
     });
   } catch (error) {
-    logger.error(`Error creating ticket: ${error.message}`);
+    logger.error(
+      `Prisma error in createTicket: ${error.message}`,
+      error.meta || error
+    );
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Internal server error. Please try again later.",
     });
   }
 };
@@ -153,8 +174,21 @@ exports.getTicketsByUserId = async (req, res) => {
   const userId = req.params.user_id;
 
   try {
+    // Check for auth token first
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      logger.warn("No token provided in getTicketsByUserId request");
+      return res.status(401).json({
+        success: false,
+        message: "No token provided. Please login first.",
+      });
+    }
+
+    logger.info(`Fetching tickets for user ID: ${userId}`);
+
     const tickets = await prisma.tickets.findMany({
       where: { user_id: parseInt(userId) },
+      orderBy: { created_at: "desc" },
       include: {
         bus: {
           select: {
@@ -179,14 +213,36 @@ exports.getTicketsByUserId = async (req, res) => {
       destination_city: ticket.destination_city,
       bus_name: ticket.bus_name,
       date: ticket.date,
-      hasAddons: ticket.hasAddons,
+      has_addons: ticket.has_addons,
     }));
 
-    logger.info(`Successfully fetched tickets for user ID: ${userId}`);
+    logger.info(
+      `Successfully fetched ${tickets.length} tickets for user ID: ${userId}`
+    );
     res.status(200).json(formattedTickets);
   } catch (error) {
-    logger.error(`Error fetching tickets: ${error.message}`);
-    res.status(500).json({ error: "Internal Server Error" });
+    // Check if it's a Prisma schema error
+    if (error.message && error.message.includes("does not exist")) {
+      logger.error(
+        `Prisma schema error in getTicketsByUserId: ${error.message}`,
+        error.meta || error
+      );
+      return res.status(500).json({
+        success: false,
+        message:
+          "Database schema is out of sync. Please run migration to add missing columns.",
+        error: "DB_SCHEMA_MISMATCH",
+      });
+    }
+
+    logger.error(
+      `Prisma error in getTicketsByUserId: ${error.message}`,
+      error.meta || error
+    );
+    res.status(500).json({
+      success: false,
+      message: "Internal server error. Please try again later.",
+    });
   }
 };
 

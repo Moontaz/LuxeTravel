@@ -257,7 +257,7 @@ const ReceiptPage = () => {
       }
 
       // Check if user has addons
-      const hasAddons = booking.food && booking.food.length > 0;
+      const has_addons = booking.food && booking.food.length > 0;
 
       const ticketData = {
         user_id: userId,
@@ -270,7 +270,7 @@ const ReceiptPage = () => {
         bus_name: booking.bus_name || booking.bus?.name || "Unknown Bus",
         departure_city: departureCity,
         destination_city: destinationCity,
-        hasAddons: hasAddons,
+        has_addons: has_addons,
       };
 
       console.log("=== SENDING TICKET DATA TO SERVER ===");

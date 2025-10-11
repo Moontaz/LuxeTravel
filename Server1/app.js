@@ -67,6 +67,9 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/bus", busRoutes);
 
+// Add route alias for backward compatibility - /api/ticket should work
+app.use("/api/ticket", busRoutes);
+
 // Export langsung Express app
 module.exports = app;
 logger.info(`Bus Ticketing API running`);

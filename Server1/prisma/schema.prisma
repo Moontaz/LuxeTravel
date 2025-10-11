@@ -48,12 +48,14 @@ model tickets {
   no_seat          String    @db.VarChar(10)
   total_price      Int
   ticket_code      String    @db.VarChar(100)
-  date             DateTime?
+  date             DateTime?          // Main date field for ticket
+  departure_date   DateTime?         // Optional separate date field if needed
+  departure_time   String?           // Optional time string
   bus_name         String?
   departure_city   String?
-  destination_city  String?
-  hasAddons        Boolean?  @default(false)
-  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  destination_city String?
+  has_addons        Boolean   @default(false)
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
   user             users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_ibfk_1")
   bus              buses     @relation(fields: [bus_id], references: [bus_id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_ibfk_2")
 
