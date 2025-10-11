@@ -105,15 +105,11 @@ const BookingPage = () => {
     // Extract city data with better fallbacks - prioritize actual bus data
     const departureCity =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      actualBus?.origin ||
-      trip.origin ||
-      (trip as any).departure_city ||
-      "Unknown";
+      actualBus?.origin || trip.origin || "Unknown";
     const destinationCity =
       actualBus?.destination ||
       trip.destination ||
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (trip as any).destination_city ||
       "Unknown";
     const busName =
       actualBus?.name ||

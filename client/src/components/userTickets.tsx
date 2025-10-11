@@ -29,9 +29,9 @@ const UserTicketsPage = () => {
       if (response) {
         const parsedTickets = (response as Ticket[]).map((ticket: Ticket) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if ((ticket as any).addon && Array.isArray((ticket as any).addon)) {
+          if (ticket.addons && Array.isArray(ticket.addons)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (ticket as any).addon.forEach((addonItem: AddonItem) => {
+            ticket.addons.forEach((addonItem: AddonItem) => {
               if (addonItem && typeof addonItem.food_items === "string") {
                 try {
                   addonItem.food_items = JSON.parse(addonItem.food_items);
@@ -142,10 +142,9 @@ const UserTicketsPage = () => {
               <div className="col-span-4">
                 <div className="flex flex-wrap gap-2">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {(ticket as any).addon &&
-                  Array.isArray((ticket as any).addon) ? (
+                  {ticket.addons && Array.isArray(ticket.addons) ? (
                     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                    (ticket as any).addon.map(
+                    ticket.addons.map(
                       (addonItem: AddonItem, addonIndex: number) =>
                         addonItem.food_items &&
                         Array.isArray(addonItem.food_items) ? (
