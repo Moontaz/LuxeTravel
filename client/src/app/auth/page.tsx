@@ -1,33 +1,34 @@
 "use client";
-import React, { useState } from "react";
-import { handleLogin, handleRegister } from "@/controllers/authController";
-import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
-
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-import { CheckCircle, XCircle } from "lucide-react";
-import Image from "next/image";
+import {
+  MailIcon,
+  LockIcon,
+  UserIcon,
+  EyeIcon,
+  EyeOffIcon,
+  ArrowRightIcon,
+} from "lucide-react";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import { handleLogin, handleRegister } from "../../controllers/authController";
+import { gsap } from "gsap";
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
-  const router = useRouter();
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertStatus, setAlertStatus] = useState<"success" | "error" | null>(
-    null
-  );
   const [loading, setLoading] = useState(false);
+  const [alertStatus, setAlertStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Form data
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -40,10 +41,34 @@ const AuthPage = () => {
     confirmPassword: "",
   });
 
+  // Refs for animations
+  const heroRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Hero animation
+    if (heroRef.current) {
+      gsap.fromTo(
+        heroRef.current,
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }
+      );
+    }
+
+    // Form animation
+    if (formRef.current) {
+      gsap.fromTo(
+        formRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.2 }
+      );
+    }
+  }, []);
+
   const handleLoginInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({
       ...loginData,
-      [e.target.id]: e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -52,404 +77,332 @@ const AuthPage = () => {
   ) => {
     setRegisterData({
       ...registerData,
-      [e.target.id]: e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setAlertMessage("");
     setAlertStatus(null);
 
     try {
-      if (activeTab === "login") {
-        try {
-          await handleLogin(loginData);
-          setAlertMessage("Login Successfully!");
-          setAlertStatus("success");
-          setTimeout(() => {
-            router.push("/");
-          }, 400);
-        } catch (error: unknown) {
-          setAlertStatus("error");
-          if (error instanceof AxiosError && error.response) {
-            if (error.response.status === 404) {
-              setAlertMessage("Email not found");
-            } else if (error.response.status === 401) {
-              setAlertMessage("Invalid password");
-            } else if (error.response.status === 500) {
-              setAlertMessage("Database error");
-            } else {
-              setAlertMessage("An unknown error occurred");
-            }
-          } else {
-            // For other types of errors (e.g., network issues)
-            setAlertMessage(
-              (error as Error).message || "An unknown error occurred"
-            );
-            setAlertStatus("error");
-          }
-        } finally {
-          setTimeout(() => {
-            setAlertMessage("");
-            setAlertStatus(null);
-          }, 2000);
-          setLoading(false);
-        }
-      } else {
-        // Handle registration
-        await handleRegister(registerData);
-        setAlertStatus("success");
-        setAlertMessage("Registered successfully!");
-        setLoading(false);
-        setTimeout(() => {
-          setAlertMessage("");
-          setAlertStatus(null);
-        }, 2000);
-      }
-    } catch (error: unknown) {
-      setAlertStatus("error");
-      if (error instanceof Error) {
-        setAlertMessage(error.message);
-      } else {
-        setAlertMessage("An error occurred during submission.");
-      }
-      setLoading(false);
+      const result = await handleLogin(loginData);
+      setAlertStatus({ type: "success", message: result });
+      // Redirect to booking page after successful login
       setTimeout(() => {
-        setAlertMessage("");
-        setAlertStatus(null);
+        window.location.href = "/booking";
       }, 2000);
+    } catch (error) {
+      const err = error as Error;
+      setAlertStatus({ type: "error", message: err.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setAlertStatus(null);
+
+    if (registerData.password !== registerData.confirmPassword) {
+      setAlertStatus({ type: "error", message: "Passwords do not match" });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await handleRegister(registerData);
+      setAlertStatus({ type: "success", message: result });
+      // Switch to login tab after successful registration
+      setTimeout(() => {
+        setActiveTab("login");
+        setRegisterData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+      }, 2000);
+    } catch (error) {
+      const err = error as Error;
+      setAlertStatus({ type: "error", message: err.message });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center overflow-hidden">
-      <Card className="w-[768px] h-[657px] rounded-none flex flex-row border-0 z-10">
-        {/* Kiri: Header dengan background image */}
-        <CardHeader className="relative w-[500px] h-[657px] justify-end gap-10 pb-10 text-white">
-          {/* Background Image */}
-          <Image
-            src={activeTab === "login" ? "/images/bg1.png" : "/images/bg2.png"}
-            alt="Login BG-Luxe Travel"
-            fill
-            className="object-cover"
-            priority
-          />
+    <div className="min-h-screen bg-white">
+      <Header />
 
-          {/* Konten Judul & Deskripsi */}
-          <div className="relative z-10 flex flex-col gap-4">
-            <CardTitle className="font-bold">
-              {activeTab === "login"
-                ? "Welcome Back!"
-                : "Create Your Account Now!"}
-            </CardTitle>
-            <CardDescription className="text-white text-sm">
-              {activeTab === "login"
-                ? "Login to your account to manage your bookings, preferences, and more."
-                : "By creating an account, you’ll enjoy personalized travel recommendations, faster bookings, and exclusive offers."}
-            </CardDescription>
-          </div>
-
-          {/* Footer Kecil */}
-          <div className="relative z-10 flex flex-row items-center text-desc gap-8">
-            <p>Luxe Travel 2025. All rights reserved.</p>
-            <div className="flex flex-row gap-2 underline text-desc font-bold cursor-pointer">
-              <span>Terms of Service</span>
-              <span>Privacy Policy</span>
-            </div>
-          </div>
-        </CardHeader>
-
-        {/* Kanan: Form Tabs */}
-        <CardContent>
-          <Tabs
-            value={activeTab}
-            onValueChange={(value) => setActiveTab(value)}
-            className="w-[268px] h-full"
-          >
-            {/* LOGIN */}
-            <TabsContent
-              value="login"
-              className="w-full h-full flex flex-col items-center justify-center data-[state=inactive]:hidden"
-            >
-              <div className="w-full flex flex-col gap-8">
-                {/* Header Form */}
-                <div className="login-form-header">
-                  <h5 className="mb-2">Login Now!</h5>
-                  <div className="text-sm text-muted-foreground">
-                    Welcome back! Please enter details.
-                  </div>
-                </div>
-
-                {/* Form Login */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-3">
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        className="rounded-none"
-                        value={loginData.email}
-                        onChange={handleLoginInputChange}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        className="rounded-none"
-                        value={loginData.password}
-                        onChange={handleLoginInputChange}
-                      />
-                    </div>
-
-                    <div className="flex flex-row justify-between items-center">
-                      <div className="flex flex-row gap-2 items-center">
-                        <Input
-                          type="checkbox"
-                          className="rounded-none w-4 h-4"
-                        />
-                        <Label htmlFor="remember-me">
-                          <p className="text-desc">Remember me</p>
-                        </Label>
-                      </div>
-                      <span className="text-sm text-primary underline cursor-pointer">
-                        Forgot Password?
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full text-sm rounded-none bg-[#CBFF3E] text-primary hover:bg-[#CBFF3E]/90"
-                    disabled={loading}
-                  >
-                    {loading ? "Loading..." : "Login"}
-                  </Button>
-                </form>
-
-                {/* Quick Links */}
-                <div className="login-quick flex flex-col gap-2 items-center">
-                  <p className="text-sm font-light text-muted-foreground">
-                    Don't have an account?{" "}
-                    <span
-                      className="text-primary font-medium underline cursor-pointer"
-                      onClick={() => setActiveTab("register")}
-                    >
-                      Register
-                    </span>
-                  </p>
-                  {/* Divider with text */}
-                  <div className="flex items-center w-full gap-2">
-                    <div className="flex-grow border-t border-gray-300"></div>
-                    <span className="text-sm text-gray-500">
-                      Or continue with
-                    </span>
-                    <div className="flex-grow border-t border-gray-300"></div>
-                  </div>
-                  {/* Social login buttons */}
-                  <div className="flex justify-center gap-4">
-                    <button className="border border-gray-400 p-1 w-8 h-8 flex items-center justify-center">
-                      <Image
-                        src="/icons/google.svg"
-                        alt="Google"
-                        // className="w-8 h-8"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                    <button className="border border-gray-400 p-1 w-8 h-8 flex items-center justify-center">
-                      <Image
-                        src="/icons/x.svg"
-                        alt="X"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                    <button className="border border-gray-400 p-1 w-8 h-8 flex items-center justify-center">
-                      <Image
-                        src="/icons/facebook.svg"
-                        alt="Facebook"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* REGISTER */}
-            <TabsContent
-              value="register"
-              className="w-full h-full flex flex-col items-center justify-center data-[state=inactive]:hidden"
-            >
-              <div className="w-full flex flex-col gap-8">
-                {/* Header Form */}
-                <div className="login-form-header">
-                  <h5 className="mb-2">Register Now!</h5>
-                  <div className="text-sm text-muted-foreground">
-                    Register now to start your journey!
-                  </div>
-                </div>
-
-                {/* Form Register */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-3">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        className="rounded-none"
-                        value={registerData.name}
-                        onChange={handleRegisterInputChange}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        className="rounded-none"
-                        value={registerData.email}
-                        onChange={handleRegisterInputChange}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        className="rounded-none"
-                        value={registerData.password}
-                        onChange={handleRegisterInputChange}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        className="rounded-none"
-                        value={registerData.confirmPassword}
-                        onChange={handleRegisterInputChange}
-                      />
-                    </div>
-
-                    <div className="flex flex-row gap-2 items-center">
-                      <Input type="checkbox" className="rounded-none w-4 h-4" />
-                      <Label htmlFor="terms">
-                        <p className="text-desc font-light">
-                          I agree to{" "}
-                          <span className="underline font-bold cursor-pointer">
-                            Terms of Conditions
-                          </span>{" "}
-                          and{" "}
-                          <span className="underline font-bold cursor-pointer">
-                            Privacy of Policy
-                          </span>
-                        </p>
-                      </Label>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full text-sm rounded-none bg-[#CBFF3E] text-primary hover:bg-[#CBFF3E]/90"
-                    disabled={loading}
-                  >
-                    {loading ? "Loading..." : "Register"}
-                  </Button>
-                </form>
-
-                {/* Quick Links */}
-                <div className="login-quick flex flex-col gap-2 items-center">
-                  <p className="text-sm text-muted-foreground">
-                    Don't have an account?{" "}
-                    <span
-                      className="text-primary underline cursor-pointer"
-                      onClick={() => setActiveTab("login")}
-                    >
-                      Login
-                    </span>
-                  </p>
-                  {/* Divider with text */}
-                  <div className="flex items-center w-full gap-2">
-                    <div className="flex-grow border-t border-gray-300"></div>
-                    <span className="text-sm text-gray-500">
-                      Or continue with
-                    </span>
-                    <div className="flex-grow border-t border-gray-300"></div>
-                  </div>
-                  {/* Social login buttons */}
-                  <div className="flex justify-center gap-4">
-                    <button className="border border-gray-400 p-1 w-8 h-8 flex items-center justify-center">
-                      <Image
-                        src="/icons/google.svg"
-                        alt="Google"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                    <button className="border border-gray-400 p-1 w-8 h-8 flex items-center justify-center">
-                      <Image
-                        src="/icons/x.svg"
-                        alt="X"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                    <button className="border border-gray-400 p-1 w-8 h-8 flex items-center justify-center">
-                      <Image
-                        src="/icons/facebook.svg"
-                        alt="Facebook"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* ALERT STATUS */}
-      {alertStatus && (
-        <div
-          className={`absolute top-4 p-2 rounded-none text-white text-xs
-      ${alertStatus === "success" ? "bg-green-500" : "bg-red-500"} 
-      flex items-center gap-2`}
-        >
-          {alertStatus === "success" ? (
-            <CheckCircle size={16} />
-          ) : (
-            <XCircle size={16} />
-          )}
-          <span>{alertMessage}</span>
+      {/* Hero Section */}
+      <section ref={heroRef} className="section bg-gray-900 text-white">
+        <div className="container text-center">
+          <h1 className="text-4xl sm:text-5xl font-black mb-6">
+            WELCOME TO LUXE TRAVEL
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Sign in to your account or create a new one to start your luxury
+            journey
+          </p>
         </div>
-      )}
-      {/* Background Text */}
-      <div className="absolute inset-0 font-bold pointer-events-none select-none z-0 overflow-hidden">
-        <h1 className="absolute w-full left-2/3 -translate-x-1/2 font-normal text-[14rem] tracking-[-2rem] opacity-10 leading-none">
-          LUXE TRAVEL
-        </h1>
-        <h1 className="absolute top-1/3 right-10 font-normal text-[14rem] tracking-[-2rem] opacity-10 leading-none">
-          LUXE
-        </h1>
-        <h1 className="absolute -bottom-10 left-0 font-normal text-[14rem] tracking-[-2rem] opacity-10 leading-none">
-          LUXE TRAVEL
-        </h1>
-      </div>
+      </section>
+
+      {/* Auth Form Section */}
+      <section ref={formRef} className="section bg-gray-50">
+        <div className="container">
+          <div className="max-w-md mx-auto">
+            <Card>
+              <CardContent className="p-8">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full"
+                >
+                  <TabsList className="grid w-full grid-cols-2 mb-8">
+                    <TabsTrigger value="login" className="font-bold">
+                      Sign In
+                    </TabsTrigger>
+                    <TabsTrigger value="register" className="font-bold">
+                      Sign Up
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Login Form */}
+                  <TabsContent value="login" className="space-y-6">
+                    <form onSubmit={handleLoginSubmit} className="space-y-6">
+                      <div>
+                        <Label htmlFor="email">Email Address</Label>
+                        <div className="relative">
+                          <MailIcon
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={16}
+                          />
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            className="pl-10"
+                            placeholder="Enter your email"
+                            value={loginData.email}
+                            onChange={handleLoginInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="password">Password</Label>
+                        <div className="relative">
+                          <LockIcon
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={16}
+                          />
+                          <Input
+                            id="password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            className="pl-10 pr-10"
+                            placeholder="Enter your password"
+                            value={loginData.password}
+                            onChange={handleLoginInputChange}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOffIcon size={16} />
+                            ) : (
+                              <EyeIcon size={16} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={loading}
+                        size="lg"
+                      >
+                        {loading ? "Signing in..." : "Sign In"}
+                        <ArrowRightIcon className="ml-2 h-4 w-4" />
+                      </Button>
+                    </form>
+
+                    <div className="text-center">
+                      <p className="text-gray-600">
+                        Don't have an account?{" "}
+                        <button
+                          type="button"
+                          className="text-gray-900 font-bold hover:underline"
+                          onClick={() => setActiveTab("register")}
+                        >
+                          Sign up here
+                        </button>
+                      </p>
+                    </div>
+                  </TabsContent>
+
+                  {/* Register Form */}
+                  <TabsContent value="register" className="space-y-6">
+                    <form onSubmit={handleRegisterSubmit} className="space-y-6">
+                      <div>
+                        <Label htmlFor="name">Full Name</Label>
+                        <div className="relative">
+                          <UserIcon
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={16}
+                          />
+                          <Input
+                            id="name"
+                            name="name"
+                            type="text"
+                            className="pl-10"
+                            placeholder="Enter your full name"
+                            value={registerData.name}
+                            onChange={handleRegisterInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="register-email">Email Address</Label>
+                        <div className="relative">
+                          <MailIcon
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={16}
+                          />
+                          <Input
+                            id="register-email"
+                            name="email"
+                            type="email"
+                            className="pl-10"
+                            placeholder="Enter your email"
+                            value={registerData.email}
+                            onChange={handleRegisterInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="register-password">Password</Label>
+                        <div className="relative">
+                          <LockIcon
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={16}
+                          />
+                          <Input
+                            id="register-password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            className="pl-10 pr-10"
+                            placeholder="Create a password"
+                            value={registerData.password}
+                            onChange={handleRegisterInputChange}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOffIcon size={16} />
+                            ) : (
+                              <EyeIcon size={16} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="confirm-password">
+                          Confirm Password
+                        </Label>
+                        <div className="relative">
+                          <LockIcon
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={16}
+                          />
+                          <Input
+                            id="confirm-password"
+                            name="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            className="pl-10 pr-10"
+                            placeholder="Confirm your password"
+                            value={registerData.confirmPassword}
+                            onChange={handleRegisterInputChange}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOffIcon size={16} />
+                            ) : (
+                              <EyeIcon size={16} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={loading}
+                        size="lg"
+                      >
+                        {loading ? "Creating account..." : "Create Account"}
+                        <ArrowRightIcon className="ml-2 h-4 w-4" />
+                      </Button>
+                    </form>
+
+                    <div className="text-center">
+                      <p className="text-gray-600">
+                        Already have an account?{" "}
+                        <button
+                          type="button"
+                          className="text-gray-900 font-bold hover:underline"
+                          onClick={() => setActiveTab("login")}
+                        >
+                          Sign in here
+                        </button>
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Alert Status */}
+                {alertStatus && (
+                  <div
+                    className={`mt-6 p-4 ${
+                      alertStatus.type === "success"
+                        ? "bg-green-100 text-green-800 border border-green-200"
+                        : "bg-red-100 text-red-800 border border-red-200"
+                    }`}
+                  >
+                    <p className="font-medium">{alertStatus.message}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };

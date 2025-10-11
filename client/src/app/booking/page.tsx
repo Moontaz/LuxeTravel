@@ -4,365 +4,244 @@ import { useBooking } from "../context/BookingContext";
 import { useRouter } from "next/navigation";
 import { Bus, City } from "../../lib/interface";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, ArrowLeftRight, ArrowRight } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import Image from "next/image";
+import HeroSection from "@/components/HeroSection";
+import BookingForm from "@/components/BookingForm";
+import TripCard from "@/components/TripCard";
+import GSAPWrapper from "@/components/GSAPWrapper";
+import { getAllBuses, getAllCities } from "@/api/bus";
 
 const BookingPage = () => {
-  const [activeTab, setActiveTab] = useState("bus");
   const { booking, setBooking } = useBooking();
   const router = useRouter();
 
   const [results, setResults] = useState<Bus[]>([]);
   const [buses, setBuses] = useState<Bus[]>([]);
   const [cities, setCities] = useState<City[]>([]);
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
-  const [origin, setOrigin] = useState<string | undefined>();
-  const [destination, setDestination] = useState<string | undefined>();
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const busResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BUS_URL}/api/bus/buses`
+        console.log("=== ENVIRONMENT VARIABLES DEBUG ===");
+        console.log("NEXT_PUBLIC_BUS_URL:", process.env.NEXT_PUBLIC_BUS_URL);
+        console.log("NEXT_PUBLIC_FOOD_URL:", process.env.NEXT_PUBLIC_FOOD_URL);
+        console.log(
+          "All env vars:",
+          Object.keys(process.env).filter((key) =>
+            key.startsWith("NEXT_PUBLIC")
+          )
         );
-        if (!busResponse.ok) throw new Error("Error fetching bus data");
+        console.log("===================================");
 
-        const busData = await busResponse.json();
-        setBuses(busData);
+        // Fetch buses (with caching)
+        const busResult = await getAllBuses();
+        if (busResult.success) {
+          setBuses(busResult.data);
+        } else {
+          console.error("Error fetching bus data:", busResult.error);
+        }
 
-        const cityResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BUS_URL}/api/bus/cities`
-        );
-        if (!cityResponse.ok) throw new Error("Error fetching city data");
-
-        const cityData = await cityResponse.json();
-        setCities(cityData);
+        // Fetch cities (with 24h caching - optimized for frequent use)
+        const cityResult = await getAllCities();
+        if (cityResult.success) {
+          setCities(cityResult.data);
+        } else {
+          console.error("Error fetching city data:", cityResult.error);
+        }
       } catch (error) {
-        const err = error as Error;
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching data:", error);
       }
     };
+
     fetchData();
-  }, []); // Empty array ensures this runs only once on mount
+  }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <p>Loading bus data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <p>Error: {error}</p>
-      </div>
-    );
-  }
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (searchData: {
+    origin: string;
+    destination: string;
+    date: Date;
+    passengers: number;
+    class: string;
+  }) => {
     setLoading(true);
-    setShowResults(false);
-
-    setTimeout(() => {
-      const filteredResults = buses.filter((item) => {
-        const itemDate = format(new Date(item.departureTime), "yyyy-MM-dd");
-        const inputDate = date
-          ? format(new Date(date), "yyyy-MM-dd")
-          : format(new Date(), "yyyy-MM-dd");
-        return (
-          item.origin === origin &&
-          item.destination === destination &&
-          itemDate === inputDate
-        );
+    try {
+      // Filter buses based on search criteria
+      const filteredBuses = buses.filter((bus) => {
+        // Add your filtering logic here based on origin, destination, date, etc.
+        return true; // For now, return all buses
       });
 
-      setResults(filteredResults);
-      setLoading(false);
+      setResults(filteredBuses);
       setShowResults(true);
-    }, 1000);
+    } catch (error) {
+      console.error("Error searching buses:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = (bus: Bus) => {
-    setLoading(true);
-    if (booking) {
-      setBooking({
-        ...booking,
-        bus: bus,
-        total_price: booking.total_price + bus.price,
-      });
-    } else {
-      // If booking is null (first time setting booking data), create a new object
-      setBooking({
-        bus: bus,
-        food: [],
-        no_seat: "",
-        total_price: bus.price,
-      });
-    }
+  const handleTripSelect = (trip: any) => {
+    // Debug: Log the trip data to see what we're working with
+    console.log("=== TRIP SELECTION DEBUG ===");
+    console.log("Selected trip:", trip);
+    console.log("Trip origin:", trip.origin);
+    console.log("Trip destination:", trip.destination);
+    console.log("Trip busName:", trip.busName);
+    console.log("Trip name:", trip.name);
+    console.log("Trip id:", trip.id);
+    console.log("Full trip object keys:", Object.keys(trip));
+    console.log("===========================");
 
-    // Navigate to the next step (if needed)
+    // Find the actual bus data from the buses array
+    const actualBus = buses.find((bus) => bus.id.toString() === trip.id);
+    console.log("=== ACTUAL BUS DATA ===");
+    console.log("Found bus:", actualBus);
+    console.log("Bus origin:", actualBus?.origin);
+    console.log("Bus destination:", actualBus?.destination);
+    console.log("Bus name:", actualBus?.name);
+    console.log("Bus busName:", actualBus?.busName);
+    console.log("======================");
+
+    // Extract city data with better fallbacks - prioritize actual bus data
+    const departureCity =
+      actualBus?.origin || trip.origin || trip.departure_city || "Unknown";
+    const destinationCity =
+      actualBus?.destination ||
+      trip.destination ||
+      trip.destination_city ||
+      "Unknown";
+    const busName =
+      actualBus?.name ||
+      actualBus?.busName ||
+      trip.busName ||
+      trip.name ||
+      "Luxe Bus";
+
+    setBooking({
+      bus: actualBus || trip, // Use actual bus data if available
+      food: [],
+      no_seat: "",
+      total_price: 0,
+      date: new Date(),
+      passengers: 1,
+      // Store complete route information
+      bus_name: busName,
+      departure_city: departureCity,
+      destination_city: destinationCity,
+      route: {
+        id: trip.id?.toString() || "route123",
+        departure_city: departureCity,
+        destination_city: destinationCity,
+      },
+    });
+
+    // Debug: Log what we're storing in context
+    console.log("=== STORING IN CONTEXT ===");
+    console.log("Bus name:", busName);
+    console.log("Departure city:", departureCity);
+    console.log("Destination city:", destinationCity);
+    console.log("Route object:", {
+      id: trip.id?.toString() || "route123",
+      departure_city: departureCity,
+      destination_city: destinationCity,
+    });
+    console.log("=========================");
+
     router.push("/booking/bus");
   };
+
   return (
-    <div className="min-w-screen bg-white text-gray-900 font-sans">
+    <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Booking Section */}
-      <section className="min-h-screen w-full py-16 flex items-end align-bottom justify-end">
-        <Image
-          src="/images/bg3.png"
-          alt="Login BG-Luxe Travel"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="container max-w-[1416px] max-h-[376px] mx-auto px-4 z-10 relative">
-          <Tabs defaultValue="bus">
-            <TabsList className="rounded-none h-[56px] p-0">
-              <TabsTrigger
-                value="bus"
-                className="rounded-none w-[160px] h-full flex flex-row gap-5 items-center justify-start pl-6"
-              >
-                <Image
-                  src="/icons/guidance_bus.svg"
-                  alt="guidance_bus"
-                  width={24}
-                  height={24}
-                />
-                <h5 className="font-normal text-xl">Bus</h5>
-              </TabsTrigger>
-              <TabsTrigger
-                value="plane"
-                className="rounded-none w-[160px] h-full flex flex-row gap-5 items-center justify-start pl-6 bg-black"
-                disabled
-              >
-                <Image
-                  src="/icons/guidance_plane.svg"
-                  alt="guidance_plane"
-                  width={24}
-                  height={24}
-                />
-                <h5 className="font-normal text-xl">Plane</h5>
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="bus" className="m-0">
-              <Card className="rounded-none shadow-sm w-full">
-                <CardContent className="p-6 h-full">
-                  <form
-                    onSubmit={handleSearch}
-                    className="relative w-full h-full flex flex-col items-end gap-4 justify-between"
-                  >
-                    <div className="relative w-full h-full flex flex-row justify-between">
-                      <div className="relative flex flex-col lg:flex-row gap-8 items-center">
-                        {/* From */}
-                        <div className="border border-gray-400 p-6 rounded-none flex flex-col gap-4 w-[25rem]">
-                          <label
-                            htmlFor="from"
-                            className="text-base uppercase text-gray-500"
-                          >
-                            FROM
-                          </label>
-                          <Select onValueChange={setOrigin}>
-                            <SelectTrigger
-                              id="from"
-                              className="text-h4 text-[2.5rem] font-semibold border-none p-0 focus:ring-0"
-                            >
-                              <SelectValue placeholder="Select origin" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {cities.map((item: any) => (
-                                <SelectItem
-                                  key={item.city_id}
-                                  value={item.city_name}
-                                >
-                                  {item.city_name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <span className="text-base text-gray-500">
-                            SBY, East Java, Indonesia
-                          </span>
-                        </div>
+      <main>
+        {/* Hero Section */}
+        <HeroSection />
 
-                        {/* Swap Icon */}
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[4.5rem] h-[4.5rem] rounded-full border border-gray-400 flex items-center justify-center text-gray-500">
-                          <ArrowLeftRight size={32} />
-                        </div>
-
-                        {/* To */}
-                        <div className="border border-gray-400 p-6 rounded-none flex flex-col gap-4 w-[25rem]">
-                          <label
-                            htmlFor="to"
-                            className="text-base uppercase text-gray-500"
-                          >
-                            TO
-                          </label>
-                          <Select onValueChange={setDestination}>
-                            <SelectTrigger
-                              id="to"
-                              className="text-h4 text-[2.5rem] font-semibold border-none p-0 focus:ring-0"
-                            >
-                              <SelectValue placeholder="Select destination" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {cities.map((item: any) => (
-                                <SelectItem
-                                  key={item.city_id}
-                                  value={item.city_name}
-                                >
-                                  {item.city_name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <span className="text-base text-gray-500">
-                            MLG, East Java, Indonesia
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Date */}
-                      <div className="border border-gray-400 p-6 rounded-none flex flex-col gap-4 w-[25rem] h-full">
-                        <label
-                          htmlFor="date"
-                          className="text-base uppercase text-gray-500"
-                        >
-                          Date
-                        </label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <div className="relative">
-                              <Input
-                                type="text"
-                                id="date"
-                                className="text-h4 text-[2.5rem] font-semibold border-none p-0 focus:ring-0"
-                                value={date ? format(date, "EEE, dd MMM") : ""}
-                                placeholder="Select date"
-                                readOnly
-                              />
-                              <CalendarIcon
-                                className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                size={32}
-                              />
-                            </div>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={date}
-                              onSelect={setDate}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <div className="flex flex-row justify-between w-1/4">
-                          <span className="text-base text-gray-500">Prev</span>
-                          <span className="text-base text-gray-500">Next</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Search Button */}
-                    <div className="lg:col-span-4">
-                      <Button
-                        type="submit"
-                        className="w-full h-[50px] flex flex-row justify-between gap-10 rounded-none p-6 font-normal bg-[#CBFF3E] text-primary hover:bg-[#CBFF3E]/80 hover:text-primary/80 text-lg transition-all duration-200"
-                      >
-                        Search
-                        <ArrowRight size={20} />
-                      </Button>
-                    </div>
-                  </form>
+        {/* Booking Form Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <GSAPWrapper animation="slideUp" delay={0.4} duration={0.8}>
+              <Card className="rounded-none border border-gray-200 shadow-lg">
+                <CardHeader className="bg-white border-b border-gray-200">
+                  <CardTitle className="text-2xl font-bold text-gray-900 text-center">
+                    Find Your Perfect Journey
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <BookingForm
+                    cities={cities}
+                    onSearch={handleSearch}
+                    loading={loading}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            </GSAPWrapper>
+          </div>
+        </section>
 
-          {/* Search Results */}
-          {showResults && (
-            <Card className="max-w-4xl mx-auto mt-8 shadow-lg">
-              <CardContent className="p-8">
-                <h4 className="text-xl font-bold mb-4">
-                  {loading ? "Loading..." : "Search Results"}
-                </h4>
-                <div className="">
-                  {loading ? (
-                    <p>Loading...</p>
-                  ) : results.length > 0 ? (
-                    results.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                      >
-                        <div>
-                          <p className="font-bold">{item.name}</p>
-                          <div className="grid grid-cols-6 justify-between gap-6">
-                            <p className="text-sm text-gray-600 col-span-2">
-                              {format(
-                                new Date(item.departureTime),
-                                "d MMMM yyyy, HH:mm"
-                              )}
-                            </p>
-                            <p className="text-sm text-gray-600 col-span-2">
-                              Available Seats: {item.available_seat}
-                            </p>
-                            <p className="text-sm text-gray-600 col-span-1">
-                              Rp. {item.price},00
-                            </p>
-                          </div>
-                        </div>
-                        <Button onClick={() => handleSubmit(item)} size="sm">
-                          Book Now
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No results found.</p>
-                  )}
+        {/* Results Section */}
+        {showResults && (
+          <section className="py-16 bg-white">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <GSAPWrapper animation="fadeIn" delay={0.2} duration={0.6}>
+                <div className="mb-8">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    Available Trips
+                  </h2>
+                  <p className="text-gray-600">
+                    {results.length} trips found for your search
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
+              </GSAPWrapper>
 
-      {/* Footer */}
+              <GSAPWrapper animation="stagger" delay={0.4} stagger={0.1}>
+                <div className="space-y-4">
+                  {results.map((trip) => (
+                    <TripCard
+                      key={trip.id}
+                      trip={{
+                        id: trip.id.toString(),
+                        busName: trip.busName || trip.name || "Luxe Bus",
+                        departureTime:
+                          trip.departureTime?.toString() || "08:00",
+                        arrivalTime: trip.arrivalTime || "12:00",
+                        duration: trip.duration || "4h 00m",
+                        price: trip.price || 150000,
+                        availableSeats:
+                          trip.availableSeats || trip.available_seat || 20,
+                        amenities: trip.amenities || ["Wifi", "Coffee"],
+                        route: `${trip.origin || "Jakarta"} → ${
+                          trip.destination || "Bandung"
+                        }`,
+                      }}
+                      onSelect={handleTripSelect}
+                    />
+                  ))}
+                </div>
+              </GSAPWrapper>
+
+              {results.length === 0 && (
+                <GSAPWrapper animation="fadeIn" delay={0.6}>
+                  <div className="text-center py-12">
+                    <div className="text-gray-500 text-lg">
+                      No trips found for your search criteria.
+                    </div>
+                    <p className="text-gray-400 mt-2">
+                      Try adjusting your search parameters.
+                    </p>
+                  </div>
+                </GSAPWrapper>
+              )}
+            </div>
+          </section>
+        )}
+      </main>
+
       <Footer />
     </div>
   );

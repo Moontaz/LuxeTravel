@@ -10,16 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Utensils, Download } from "lucide-react";
-import { getCookie, getUserTickets, Ticket } from "@/lib/utils";
-
-interface FoodItem {
-  food_name: string;
-  quantity: number;
-}
-
-interface AddonItem {
-  food_items: FoodItem[];
-}
+import { getCookie, fetchUserTicketsWithAddons } from "@/lib/utils";
+import { Ticket, FoodItem, AddonItem } from "@/lib/interface";
 
 const UserTicketsPage = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -32,7 +24,7 @@ const UserTicketsPage = () => {
 
   const fetchTickets = async () => {
     try {
-      const response = await getUserTickets();
+      const response = await fetchUserTicketsWithAddons();
 
       if (response) {
         const parsedTickets = response.map((ticket: Ticket) => {
@@ -142,7 +134,6 @@ const UserTicketsPage = () => {
                 <span>Seat {ticket.no_seat}</span>
               </div>
               <div className="col-span-4">
-                <p className="text-sm text-gray-500 mb-2">Add-ons</p>
                 <div className="flex flex-wrap gap-2">
                   {ticket.addon && Array.isArray(ticket.addon) ? (
                     ticket.addon.map((addonItem: AddonItem, addonIndex) =>

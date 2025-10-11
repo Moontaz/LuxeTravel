@@ -36,8 +36,14 @@ router.get("/cities", (req, res, next) => {
 });
 
 // Protected route: Create a new ticket
-router.post("/book-ticket", verifyToken, (req, res, next) => {
+router.post("/ticket", verifyToken, (req, res, next) => {
   logger.info("Request to create a new ticket"); // Log info
+  createTicket(req, res).catch(next); // Handle errors in controller
+});
+
+// Legacy route for backward compatibility
+router.post("/book-ticket", verifyToken, (req, res, next) => {
+  logger.info("Request to create a new ticket (legacy route)"); // Log info
   createTicket(req, res).catch(next); // Handle errors in controller
 });
 

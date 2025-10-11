@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPinIcon, ClockIcon, UserIcon } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { useRouter } from "next/navigation";
@@ -17,82 +17,123 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
-      {/* Header */}
       <Header />
 
       {/* Hero Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6 tracking-tight leading-tight">
-            Elevate Your Journey
-          </h2>
-          <p className="text-lg sm:text-xl mb-12 text-gray-600 max-w-2xl mx-auto font-light">
-            Experience luxury travel with our premium bus services. Comfort,
-            style, and reliability in every journey.
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="container text-center">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-8 text-white leading-tight">
+            LUXURY TRAVEL
+            <span className="block text-gray-300 mt-2">REDEFINED</span>
+          </h1>
+
+          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-12 leading-relaxed">
+            Experience premium bus services with unparalleled comfort,
+            cutting-edge technology, and exceptional service that sets the
+            standard for luxury travel.
           </p>
 
           <Button
-            size="lg"
-            className="px-8 py-6 text-lg font-bold"
+            size="xl"
             onClick={handleBookingClick}
             disabled={loading}
+            className="bg-white text-gray-900 hover:bg-gray-100 shadow-2xl hover:shadow-white/25 transition-all duration-300"
           >
-            {loading ? "Loading..." : "Book Your Luxury Ride"}
+            {loading ? "Loading..." : "Book Your Journey"}
+            <ArrowRightIcon className="ml-3 h-5 w-5" />
           </Button>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-gray-900 text-white">
-        <div className="container mx-auto px-4">
-          <h3 className="text-3xl font-bold mb-12 text-center">
-            The Luxe Travel Experience
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                icon: <MapPinIcon size={32} />,
-                title: "Prime Locations",
-                description: "Access to exclusive pick-up and drop-off points",
-              },
-              {
-                icon: <ClockIcon size={32} />,
-                title: "Punctuality",
-                description: "Precision timing for your peace of mind",
-              },
-              {
-                icon: <UserIcon size={32} />,
-                title: "Personal Service",
-                description: "Tailored attention to your travel needs",
-              },
-            ].map((feature, index) => (
-              <div key={index} className="text-center">
-                <div className="mb-4 flex justify-center">{feature.icon}</div>
-                <h4 className="text-xl font-bold mb-2">{feature.title}</h4>
-                <p className="text-gray-400 font-light">
-                  {feature.description}
-                </p>
+      <section className="section bg-white">
+        <div className="container">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6">
+              THE LUXE EXPERIENCE
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Every detail crafted for your comfort and convenience
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <div className="w-12 h-12 bg-gray-900 text-white flex items-center justify-center font-bold text-lg">
+                  📍
+                </div>
               </div>
-            ))}
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Prime Locations
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Exclusive pick-up and drop-off points in premium locations
+                across the city
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <div className="w-12 h-12 bg-gray-900 text-white flex items-center justify-center font-bold text-lg">
+                  ⏰
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Precision Timing
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Military-grade punctuality with real-time tracking and updates
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <div className="w-12 h-12 bg-gray-900 text-white flex items-center justify-center font-bold text-lg">
+                  👤
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Personal Concierge
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Dedicated service team for personalized travel assistance
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonial Section */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="text-3xl font-bold mb-12">What Our Clients Say</h3>
-          <blockquote className="text-2xl italic max-w-3xl mx-auto font-light">
-            &quot;An unparalleled travel experience. Luxe Travel has redefined
-            luxury bus journeys.&quot;
-          </blockquote>
-          <p className="mt-4 text-gray-600 font-bold">
-            - Jane Doe, Frequent Traveler
+      {/* Call-to-Action Section */}
+      <section className="section bg-gray-900">
+        <div className="container text-center">
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-6">
+            READY TO EXPERIENCE LUXURY?
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
+            Join thousands of satisfied customers who have chosen Luxe Travel
+            for their premium bus service needs.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="xl"
+              onClick={handleBookingClick}
+              className="bg-white text-gray-900 hover:bg-gray-100"
+            >
+              Book Your Journey
+              <ArrowRightIcon className="ml-3 h-5 w-5" />
+            </Button>
+            <Button
+              size="xl"
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white hover:text-gray-900"
+            >
+              Learn More
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

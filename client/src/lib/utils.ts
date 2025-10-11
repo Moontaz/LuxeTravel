@@ -1,17 +1,21 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { DecodedToken } from "./interface";
+import { DecodedToken, Ticket, FoodOrder, FoodItem } from "./interface";
 import { jwtDecode } from "jwt-decode";
+import { getCookie } from "@/utils/cookies";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getCookie = (name: string) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift();
-};
+// Re-export cookie utilities from centralized location
+export {
+  getCookie,
+  setCookie,
+  deleteCookie,
+  getAuthTokens,
+  clearAuthTokens,
+} from "@/utils/cookies";
 
 export const getId = (name: string) => {
   const token = getCookie(name);
@@ -19,7 +23,71 @@ export const getId = (name: string) => {
   return decoded.id;
 };
 
-export const generateTicketCode = (isOrderFood: boolean): string => {
+export const generateTicketCode = (
+  isOrderFood: boolean,
+  userData?: { name: string; id: number },
+  busData?: {
+    name: string;
+    id: number;
+    origin: string;
+    destination: string;
+    departureTime: Date;
+  }
+): string => {
+  // If we have user and bus data, create a meaningful ticket code
+  if (userData && busData) {
+    // Extract initials from user name with validation
+    const userName = userData.name || "UNKNOWN";
+    const userNameInitials = userName
+      .split(" ")
+      .filter((name) => name.trim().length > 0)
+      .map((name) => name.charAt(0).toUpperCase())
+      .join("")
+      .substring(0, 2)
+      .padEnd(2, "U"); // Pad with 'U' if less than 2 chars
+
+    // Extract initials from bus name with validation
+    const busName = busData.name || "UNKNOWN";
+    const busNameInitials = busName
+      .split(" ")
+      .filter((name) => name.trim().length > 0)
+      .map((name) => name.charAt(0).toUpperCase())
+      .join("")
+      .substring(0, 2)
+      .padEnd(2, "B"); // Pad with 'B' if less than 2 chars
+
+    // Extract route initials with validation
+    const origin = busData.origin || "U";
+    const destination = busData.destination || "U";
+    const routeInitials = `${origin.charAt(0)}${destination.charAt(
+      0
+    )}`.toUpperCase();
+
+    // Extract date components with validation
+    let day = "01";
+    let month = "01";
+    let hour = "00";
+
+    try {
+      const date = new Date(busData.departureTime);
+      if (!isNaN(date.getTime())) {
+        day = date.getDate().toString().padStart(2, "0");
+        month = (date.getMonth() + 1).toString().padStart(2, "0");
+        hour = date.getHours().toString().padStart(2, "0");
+      }
+    } catch (error) {
+      console.warn("Invalid departure time, using defaults:", error);
+    }
+
+    // Create meaningful ticket code
+    const code = `LUX-${userNameInitials}${busNameInitials}${routeInitials}${day}${month}${hour}${
+      isOrderFood ? "1" : "0"
+    }`;
+
+    return code;
+  }
+
+  // Fallback to random code if no data provided
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const numbers = "0123456789";
 
@@ -41,116 +109,50 @@ export const generateTicketCode = (isOrderFood: boolean): string => {
 
   return code;
 };
-// FoodItem interface for ordered food
-interface FoodItem {
-  food_id: number;
-  food_name: string;
-  price: string; // Price is usually stored as string in JSON format
-  quantity: number;
-}
+// All interfaces moved to lib/interface.tsx
 
-// Addon interface for food order
-interface Addon {
-  order_id: number;
-  ticket_code: string;
-  food_items: FoodItem[];
-  total_price: string;
-  created_at: string; // Date string
-}
-
-// Bus, Route, City interfaces remain the same
-interface City {
-  city_name: string;
-}
-
-interface Route {
-  route_id: number;
-  departure_city_id: number;
-  arrival_city_id: number;
-  departure_city: City;
-  arrival_city: City;
-}
-
-interface Bus {
-  bus_name: string;
-  departure_time: string; // Date string
-  price: number;
-  route: Route;
-}
-
-// Ticket interface including Addon
-export interface Ticket {
-  ticket_id: number;
-  user_id: number;
-  bus_id: number;
-  no_seat: string;
-  total_price: number;
-  ticket_code: string;
-  created_at: string; // Date string
-  bus: Bus;
-  addon?: Addon; // Optional addon field (not all tickets have addons)
-}
-export const getUserTickets = async () => {
+// Ticket interface moved to lib/interface.tsx
+export const fetchUserTicketsWithAddons = async () => {
   const user_id = getId("token1");
-  const token1 = getCookie("token1");
 
-  if (!token1) {
-    console.error("Token1 is missing. User might not be authenticated.");
+  if (!user_id) {
+    console.error("User ID is missing. User might not be authenticated.");
     return [];
   }
 
   try {
-    // Step 1: Get all tickets for the user
-    const ticketResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BUS_URL}/api/bus/tickets/${user_id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token1}`,
-        },
-      }
-    );
+    // Import API functions dynamically to avoid circular dependencies
+    const { getTicketsByUserId } = await import("@/api/ticket");
+    const { getAddonOrder } = await import("@/api/addons");
 
-    if (!ticketResponse.ok) {
-      throw new Error("Failed to fetch user tickets.");
+    // Step 1: Get all tickets for the user
+    const ticketResult = await getTicketsByUserId(user_id);
+
+    if (!ticketResult.success) {
+      console.error("Failed to fetch user tickets:", ticketResult.error);
+      return [];
     }
 
-    let tickets = await ticketResponse.json();
+    let tickets = ticketResult.data;
 
-    // Step 2: For each ticket, check if the last digit of the ticket_code is 1
+    // Step 2: Add addons for tickets that have them
     tickets = await Promise.all(
       tickets.map(async (ticket: Ticket) => {
         const { ticket_code } = ticket;
 
         if (ticket_code.endsWith("1")) {
-          const token2 = getCookie("token2"); // Token for the food API
-
-          if (!token2) {
-            console.error("Token2 is missing. Cannot fetch food orders.");
-            return ticket;
-          }
-
           try {
-            const foodResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_FOOD_URL}/api/food/getorder/${ticket_code}`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token2}`,
-                },
-              }
-            );
+            const addonResult = await getAddonOrder(ticket_code);
 
-            if (!foodResponse.ok) {
-              throw new Error(
-                `Failed to fetch food order for ticket ${ticket_code}`
+            if (addonResult.success) {
+              return { ...ticket, addon: addonResult.data };
+            } else {
+              console.error(
+                `Error fetching food order for ticket ${ticket_code}:`,
+                addonResult.error
               );
+              return ticket;
             }
-
-            const foodOrder = await foodResponse.json();
-            return { ...ticket, addon: foodOrder }; // Add food order to the ticket
           } catch (error) {
             console.error(
               `Error fetching food order for ticket ${ticket_code}:`,
@@ -167,6 +169,40 @@ export const getUserTickets = async () => {
     return tickets;
   } catch (error) {
     console.error("Error fetching user tickets or food orders:", error);
+    return [];
+  }
+};
+
+export const fetchTicketAddons = async (
+  ticketCode: string
+): Promise<FoodItem[]> => {
+  try {
+    // Import API function dynamically to avoid circular dependencies
+    const { getAddonOrder } = await import("@/api/addons");
+
+    const result = await getAddonOrder(ticketCode);
+
+    if (result.success) {
+      const data: FoodOrder[] = result.data || [];
+
+      // Extract food_items from all orders and flatten them
+      const allFoodItems: FoodItem[] = [];
+      if (Array.isArray(data)) {
+        data.forEach((order: FoodOrder) => {
+          if (order.food_items && Array.isArray(order.food_items)) {
+            allFoodItems.push(...order.food_items);
+          }
+        });
+      }
+
+      return allFoodItems;
+    } else {
+      console.error("Error fetching ticket add-ons:", result.error);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching ticket add-ons:", error);
+    // Return empty array on error to prevent UI crashes
     return [];
   }
 };

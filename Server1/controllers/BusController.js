@@ -67,34 +67,84 @@ exports.getCities = async (req, res) => {
 };
 // Function to create a new ticket
 exports.createTicket = async (req, res) => {
-  const { user_id, bus_id, no_seat, total_price, ticket_code } = req.body;
+  const {
+    user_id,
+    bus_id,
+    no_seat,
+    total_price,
+    date,
+    bus_name,
+    departure_city,
+    destination_city,
+    hasAddons,
+  } = req.body;
 
   try {
+    // Validate required fields
+    if (!user_id || !bus_id || !no_seat) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: user_id, bus_id, no_seat",
+      });
+    }
+
     logger.info(`Attempting to create ticket for bus_id: ${bus_id}`);
+
+    // Check if bus exists
     const bus = await prisma.buses.findUnique({
       where: { bus_id: parseInt(bus_id) },
     });
 
     if (!bus) {
       logger.warn(`Bus with id ${bus_id} not found`);
-      return res.status(404).json({ error: "Bus not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Bus not found",
+      });
+    }
+
+    // Generate random ticket code
+    const ticket_code = `LUX-${Math.random()
+      .toString(36)
+      .substring(2, 10)
+      .toUpperCase()}`;
+
+    logger.info(`Generated ticket code: ${ticket_code}`);
+
+    // Skip food order check if hasAddons is false for efficiency
+    if (hasAddons === false) {
+      logger.info(
+        `Skipping food order check for ticket ${ticket_code} - no addons`
+      );
     }
 
     const newTicket = await prisma.tickets.create({
       data: {
-        user_id,
-        bus_id,
+        user_id: Number(user_id),
+        bus_id: Number(bus_id),
         no_seat,
-        total_price,
+        total_price: Number(total_price),
         ticket_code,
+        date: new Date(date),
+        bus_name,
+        departure_city,
+        destination_city,
+        hasAddons: Boolean(hasAddons),
       },
     });
 
     logger.info(`New ticket created with ticket code: ${ticket_code}`);
-    res.status(201).json(newTicket);
+    res.status(201).json({
+      success: true,
+      ticket: newTicket,
+      message: "Ticket created successfully",
+    });
   } catch (error) {
     logger.error(`Error creating ticket: ${error.message}`);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -122,8 +172,19 @@ exports.getTicketsByUserId = async (req, res) => {
       },
     });
 
+    // Format tickets to include new fields
+    const formattedTickets = tickets.map((ticket) => ({
+      ...ticket,
+      departure_city: ticket.departure_city,
+      arrival_city: ticket.arrival_city,
+      bus_name: ticket.bus_name,
+      departure_date: ticket.departure_date,
+      departure_time: ticket.departure_time,
+      has_addons: ticket.has_addons,
+    }));
+
     logger.info(`Successfully fetched tickets for user ID: ${userId}`);
-    res.status(200).json(tickets);
+    res.status(200).json(formattedTickets);
   } catch (error) {
     logger.error(`Error fetching tickets: ${error.message}`);
     res.status(500).json({ error: "Internal Server Error" });

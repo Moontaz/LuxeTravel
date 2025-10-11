@@ -1,18 +1,10 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { Bus, FoodData } from "../../lib/interface";
-
-interface BookingData {
-  bus: Bus | undefined;
-  food: FoodData[];
-  no_seat: string;
-  total_price: number;
-}
-
-interface BookingContextProps {
-  booking: BookingData | null;
-  setBooking: (data: BookingData) => void;
-  clearBooking: () => void;
-}
+import {
+  Bus,
+  FoodData,
+  BookingData,
+  BookingContextProps,
+} from "../../lib/interface";
 
 const BookingContext = createContext<BookingContextProps | undefined>(
   undefined
@@ -23,8 +15,16 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
 
   const clearBooking = () => setBooking(null);
 
+  const confirmBooking = () => {
+    if (booking) {
+      setBooking({ ...booking, isConfirmed: true });
+    }
+  };
+
   return (
-    <BookingContext.Provider value={{ booking, setBooking, clearBooking }}>
+    <BookingContext.Provider
+      value={{ booking, setBooking, clearBooking, confirmBooking }}
+    >
       {children}
     </BookingContext.Provider>
   );

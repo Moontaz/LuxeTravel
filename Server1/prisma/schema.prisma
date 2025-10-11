@@ -42,15 +42,20 @@ model routes {
 }
 
 model tickets {
-  ticket_id   Int       @id @default(autoincrement())
-  user_id     Int
-  bus_id      Int
-  no_seat     String    @db.VarChar(10)
-  total_price Int
-  ticket_code String    @db.VarChar(100)
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  user        users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_ibfk_1")
-  bus         buses     @relation(fields: [bus_id], references: [bus_id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_ibfk_2")
+  ticket_id        Int       @id @default(autoincrement())
+  user_id          Int
+  bus_id           Int
+  no_seat          String    @db.VarChar(10)
+  total_price      Int
+  ticket_code      String    @db.VarChar(100)
+  date             DateTime?
+  bus_name         String?
+  departure_city   String?
+  destination_city  String?
+  hasAddons        Boolean?  @default(false)
+  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  user             users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_ibfk_1")
+  bus              buses     @relation(fields: [bus_id], references: [bus_id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_ibfk_2")
 
   @@index([bus_id], map: "idx_tickets_bus_id")
   @@index([user_id], map: "idx_tickets_user_id")
