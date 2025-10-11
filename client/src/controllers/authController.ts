@@ -1,5 +1,4 @@
 import { login, register } from "@/api/auth";
-import { clearAuthTokens } from "@/utils/cookies";
 
 // Function to handle login
 export const handleLogin = async (loginData: {
@@ -10,7 +9,7 @@ export const handleLogin = async (loginData: {
     const result = await login(loginData);
 
     if (!result.success) {
-      throw new Error(result.error?.message || "Login failed");
+      throw new Error((result.error as Error)?.message || "Login failed");
     }
 
     return result.data;
@@ -40,7 +39,9 @@ export const handleRegister = async (registerData: {
     });
 
     if (!result.success) {
-      throw new Error(result.error?.message || "Registration failed");
+      throw new Error(
+        (result.error as Error)?.message || "Registration failed"
+      );
     }
 
     return result.data;

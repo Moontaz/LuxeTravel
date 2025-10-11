@@ -1,10 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import {
-  Bus,
-  FoodData,
-  BookingData,
-  BookingContextProps,
-} from "../../lib/interface";
+import { BookingData, BookingContextProps } from "../../lib/interface";
 
 const BookingContext = createContext<BookingContextProps | undefined>(
   undefined

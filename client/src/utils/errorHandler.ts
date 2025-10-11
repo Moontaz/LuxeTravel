@@ -14,7 +14,18 @@ export const handleApiError = (error: unknown): ApiError => {
   console.error("API Error:", error);
 
   if (error && typeof error === "object") {
-    const apiError = error as any;
+    const apiError = error as {
+      response?: {
+        data?: {
+          message?: string;
+          error?: string;
+          code?: string;
+        };
+        status?: number;
+      };
+      request?: unknown;
+      message?: string;
+    };
 
     // Handle axios errors
     if (apiError.response) {
@@ -80,5 +91,7 @@ export const isAuthError = (error: ApiError): boolean => {
 
 export const shouldRetry = (error: ApiError): boolean => {
   // Retry on network errors or 5xx server errors
-  return isNetworkError(error) || (error.status && error.status >= 500);
+  return (
+    isNetworkError(error) || (error.status !== undefined && error.status >= 500)
+  );
 };

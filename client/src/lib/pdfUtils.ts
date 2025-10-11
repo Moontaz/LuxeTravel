@@ -15,26 +15,26 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
 
   // Header
   doc.setFontSize(24);
-  doc.setTextColor(...primaryColor);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("LUXE TRAVEL", 20, 30);
 
   doc.setFontSize(16);
-  doc.setTextColor(...secondaryColor);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.text("Bus Ticket", 20, 40);
 
   // Ticket Code
   doc.setFontSize(14);
-  doc.setTextColor(...accentColor);
+  doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
   doc.text(`Ticket Code: ${ticket.ticket_code}`, 20, 55);
 
   // Trip Information
   doc.setFontSize(12);
-  doc.setTextColor(...primaryColor);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("TRIP INFORMATION", 20, 75);
 
   // Trip details
   doc.setFontSize(10);
-  doc.setTextColor(...secondaryColor);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
 
   const tripName = ticket.bus.name || "Unknown Bus";
   const origin = ticket.bus.origin || "Unknown";
@@ -57,11 +57,11 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
 
   // Price
   doc.setFontSize(12);
-  doc.setTextColor(...primaryColor);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("PRICE INFORMATION", 20, 135);
 
   doc.setFontSize(10);
-  doc.setTextColor(...secondaryColor);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   const formattedPrice = new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -73,12 +73,12 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
   // Add-ons section
   let yPosition = 165;
   doc.setFontSize(12);
-  doc.setTextColor(...primaryColor);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("ADD-ONS", 20, yPosition);
 
   yPosition += 10;
   doc.setFontSize(10);
-  doc.setTextColor(...secondaryColor);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
 
   // Fetch add-ons from API
   let foodItems: FoodItem[] = [];
@@ -91,7 +91,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
   if (foodItems && foodItems.length > 0) {
     // Add table header
     doc.setFontSize(10);
-    doc.setTextColor(...primaryColor);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text("Food Name", 20, yPosition);
     doc.text("Qty", 80, yPosition);
     doc.text("Price", 110, yPosition);
@@ -105,7 +105,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
 
     let totalAddonsPrice = 0;
 
-    foodItems.forEach((item, index) => {
+    foodItems.forEach((item) => {
       const price = parseFloat(item.price) || 0;
       const quantity = item.quantity || 1;
       const subtotal = price * quantity;
@@ -167,7 +167,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
     yPosition += 5;
 
     doc.setFontSize(10);
-    doc.setTextColor(...primaryColor);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text("Total Add-ons:", 110, yPosition);
     const formattedTotal = new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -184,7 +184,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
   // Status
   yPosition += 10;
   doc.setFontSize(12);
-  doc.setTextColor(...primaryColor);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("STATUS", 20, yPosition);
 
   yPosition += 10;
@@ -195,7 +195,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
   // Current Date
   yPosition += 15;
   doc.setFontSize(10);
-  doc.setTextColor(...secondaryColor);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   const currentDate = new Date().toLocaleString("id-ID", {
     year: "numeric",
     month: "long",
@@ -208,7 +208,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
   // Footer
   yPosition += 20;
   doc.setFontSize(8);
-  doc.setTextColor(...secondaryColor);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.text("Thank you for choosing Luxe Travel!", 20, yPosition);
   doc.text("For support, contact: support@luxetravel.com", 20, yPosition + 5);
 

@@ -242,10 +242,11 @@ export interface FeatureCardProps {
 // CAROUSEL TYPES
 // ============================================================================
 
-import { UseEmblaCarouselType, useEmblaCarousel } from "embla-carousel-react";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
 
 export type CarouselApi = UseEmblaCarouselType[1];
-export type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UseCarouselParameters = [any?, any?];
 export type CarouselOptions = UseCarouselParameters[0];
 export type CarouselPlugin = UseCarouselParameters[1];
 
@@ -257,8 +258,12 @@ export type CarouselProps = {
 };
 
 export type CarouselContextProps = {
-  carouselRef: ReturnType<typeof useEmblaCarousel>[0];
-  api: ReturnType<typeof useEmblaCarousel>[1];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  carouselRef: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  api: any;
+  opts?: CarouselOptions;
+  orientation?: "horizontal" | "vertical";
   scrollPrev: () => void;
   scrollNext: () => void;
   canScrollPrev: boolean;

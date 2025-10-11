@@ -1,9 +1,9 @@
 // Centralized API exports
-export * from "./auth";
+export { login, register, logout } from "./auth";
 export * from "./bus";
 export * from "./booking";
 export * from "./ticket";
 export * from "./addons";
 export * from "./payment";
-export * from "./user";
+export { getUserProfile, updateUserProfile } from "./user";
 export { api, foodApi } from "./axiosInstance";

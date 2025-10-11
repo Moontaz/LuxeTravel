@@ -27,9 +27,11 @@ const UserTicketsPage = () => {
       const response = await fetchUserTicketsWithAddons();
 
       if (response) {
-        const parsedTickets = response.map((ticket: Ticket) => {
-          if (ticket.addon && Array.isArray(ticket.addon)) {
-            ticket.addon.forEach((addonItem: AddonItem) => {
+        const parsedTickets = (response as Ticket[]).map((ticket: Ticket) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((ticket as any).addon && Array.isArray((ticket as any).addon)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (ticket as any).addon.forEach((addonItem: AddonItem) => {
               if (addonItem && typeof addonItem.food_items === "string") {
                 try {
                   addonItem.food_items = JSON.parse(addonItem.food_items);
@@ -109,23 +111,27 @@ const UserTicketsPage = () => {
               <div className="col-span-4 sm:col-span-2">
                 <p className="text-xs text-gray-500">From</p>
                 <p className="font-semibold">
-                  {ticket.bus.route.departure_city.city_name}
+                  {ticket.bus.route?.departure_city?.city_name || "Unknown"}
                 </p>
               </div>
               <div className="col-span-4 sm:col-span-2">
                 <p className="text-xs text-gray-500">To</p>
                 <p className="font-semibold">
-                  {ticket.bus.route.arrival_city.city_name}
+                  {ticket.bus.route?.arrival_city?.city_name || "Unknown"}
                 </p>
               </div>
               <div className="col-span-4 sm:col-span-2 flex items-center">
                 <Clock className="h-4 w-4 mr-2" />
                 <span className="flex flex-col">
                   <span>
-                    {new Date(ticket.bus.departure_time).toLocaleDateString()}
+                    {ticket.bus.departure_time
+                      ? new Date(ticket.bus.departure_time).toLocaleDateString()
+                      : "N/A"}
                   </span>
                   <span className="text-xs">
-                    {new Date(ticket.bus.departure_time).toLocaleTimeString()}
+                    {ticket.bus.departure_time
+                      ? new Date(ticket.bus.departure_time).toLocaleTimeString()
+                      : "N/A"}
                   </span>
                 </span>
               </div>
@@ -135,23 +141,27 @@ const UserTicketsPage = () => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-wrap gap-2">
-                  {ticket.addon && Array.isArray(ticket.addon) ? (
-                    ticket.addon.map((addonItem: AddonItem, addonIndex) =>
-                      addonItem.food_items &&
-                      Array.isArray(addonItem.food_items) ? (
-                        addonItem.food_items.map(
-                          (foodItem: FoodItem, foodIndex: number) => {
-                            return (
-                              <Badge key={foodIndex} variant="secondary">
-                                <Utensils className="h-3 w-3 mr-1" />
-                                {foodItem.food_name} x{foodItem.quantity}
-                              </Badge>
-                            );
-                          }
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {(ticket as any).addon &&
+                  Array.isArray((ticket as any).addon) ? (
+                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                    (ticket as any).addon.map(
+                      (addonItem: AddonItem, addonIndex: number) =>
+                        addonItem.food_items &&
+                        Array.isArray(addonItem.food_items) ? (
+                          addonItem.food_items.map(
+                            (foodItem: FoodItem, foodIndex: number) => {
+                              return (
+                                <Badge key={foodIndex} variant="secondary">
+                                  <Utensils className="h-3 w-3 mr-1" />
+                                  {foodItem.food_name} x{foodItem.quantity}
+                                </Badge>
+                              );
+                            }
+                          )
+                        ) : (
+                          <p key={addonIndex}>invalid data</p>
                         )
-                      ) : (
-                        <p key={addonIndex}>invalid data</p>
-                      )
                     )
                   ) : (
                     <p>No add-ons</p>

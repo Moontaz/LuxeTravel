@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, MapPin, Users, Wifi, Coffee } from "lucide-react";
-import { Trip, TripCardProps } from "@/lib/interface";
+import { TripCardProps } from "@/lib/interface";
 
 const TripCard: React.FC<TripCardProps> = ({ trip, onSelect }) => {
   const formatPrice = (price: number) => {

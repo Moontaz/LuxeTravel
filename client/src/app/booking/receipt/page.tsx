@@ -5,13 +5,7 @@ import { format } from "date-fns";
 import { gsap } from "gsap";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   QrCode,
   CheckCircle,
@@ -176,7 +170,7 @@ const ReceiptPage = () => {
     };
 
     updateCityDataIfMissing();
-  }, [booking]);
+  }, [booking, setBooking]);
 
   // GSAP animations on mount
   useEffect(() => {
@@ -419,17 +413,24 @@ const ReceiptPage = () => {
                           return `${booking.bus.origin} → ${booking.bus.destination}`;
                         }
                         // Priority 4: Try other bus object fields (if they exist)
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         if (
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           (booking.bus as any)?.departure_city &&
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           (booking.bus as any)?.destination_city
                         ) {
                           console.log(
                             "Using bus departure/destination fields:",
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             (booking.bus as any).departure_city,
                             "→",
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             (booking.bus as any).destination_city
                           );
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           return `${(booking.bus as any).departure_city} → ${
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             (booking.bus as any).destination_city
                           }`;
                         }

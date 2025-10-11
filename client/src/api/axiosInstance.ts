@@ -54,14 +54,21 @@ foodApi.interceptors.request.use(
 );
 
 // Response interceptor for error handling
-const responseInterceptor = (response: unknown) => response;
-const errorInterceptor = (error: unknown) => {
-  console.error("API Error:", error);
-  return Promise.reject(error?.response?.data || error);
-};
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error);
+    return Promise.reject(error?.response?.data || error);
+  }
+);
 
-api.interceptors.response.use(responseInterceptor, errorInterceptor);
-foodApi.interceptors.response.use(responseInterceptor, errorInterceptor);
+foodApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error);
+    return Promise.reject(error?.response?.data || error);
+  }
+);
 
 export { api, foodApi };
 export default api;

@@ -14,7 +14,7 @@ import GSAPWrapper from "@/components/GSAPWrapper";
 import { getAllBuses, getAllCities } from "@/api/bus";
 
 const BookingPage = () => {
-  const { booking, setBooking } = useBooking();
+  const { setBooking } = useBooking();
   const router = useRouter();
 
   const [results, setResults] = useState<Bus[]>([]);
@@ -40,7 +40,7 @@ const BookingPage = () => {
         // Fetch buses (with caching)
         const busResult = await getAllBuses();
         if (busResult.success) {
-          setBuses(busResult.data);
+          setBuses(busResult.data as Bus[]);
         } else {
           console.error("Error fetching bus data:", busResult.error);
         }
@@ -48,7 +48,7 @@ const BookingPage = () => {
         // Fetch cities (with 24h caching - optimized for frequent use)
         const cityResult = await getAllCities();
         if (cityResult.success) {
-          setCities(cityResult.data);
+          setCities(cityResult.data as City[]);
         } else {
           console.error("Error fetching city data:", cityResult.error);
         }
@@ -60,17 +60,11 @@ const BookingPage = () => {
     fetchData();
   }, []);
 
-  const handleSearch = async (searchData: {
-    origin: string;
-    destination: string;
-    date: Date;
-    passengers: number;
-    class: string;
-  }) => {
+  const handleSearch = async () => {
     setLoading(true);
     try {
       // Filter buses based on search criteria
-      const filteredBuses = buses.filter((bus) => {
+      const filteredBuses = buses.filter(() => {
         // Add your filtering logic here based on origin, destination, date, etc.
         return true; // For now, return all buses
       });
@@ -84,7 +78,7 @@ const BookingPage = () => {
     }
   };
 
-  const handleTripSelect = (trip: any) => {
+  const handleTripSelect = (trip: Bus) => {
     // Debug: Log the trip data to see what we're working with
     console.log("=== TRIP SELECTION DEBUG ===");
     console.log("Selected trip:", trip);
@@ -97,7 +91,9 @@ const BookingPage = () => {
     console.log("===========================");
 
     // Find the actual bus data from the buses array
-    const actualBus = buses.find((bus) => bus.id.toString() === trip.id);
+    const actualBus = buses.find(
+      (bus) => bus.id.toString() === trip.id.toString()
+    );
     console.log("=== ACTUAL BUS DATA ===");
     console.log("Found bus:", actualBus);
     console.log("Bus origin:", actualBus?.origin);
@@ -108,11 +104,16 @@ const BookingPage = () => {
 
     // Extract city data with better fallbacks - prioritize actual bus data
     const departureCity =
-      actualBus?.origin || trip.origin || trip.departure_city || "Unknown";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      actualBus?.origin ||
+      trip.origin ||
+      (trip as any).departure_city ||
+      "Unknown";
     const destinationCity =
       actualBus?.destination ||
       trip.destination ||
-      trip.destination_city ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (trip as any).destination_city ||
       "Unknown";
     const busName =
       actualBus?.name ||
@@ -219,7 +220,10 @@ const BookingPage = () => {
                           trip.destination || "Bandung"
                         }`,
                       }}
-                      onSelect={handleTripSelect}
+                      onSelect={
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        handleTripSelect as (trip: any) => void
+                      }
                     />
                   ))}
                 </div>

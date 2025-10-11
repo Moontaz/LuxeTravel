@@ -19,7 +19,6 @@ import Link from "next/link";
 import { BusFront, MapPin, Clock, Users } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { getCookie } from "@/lib/utils";
 import { getBookedSeatsByBusId } from "@/api/bus";
 
 const BusBookingPage = () => {
@@ -88,7 +87,9 @@ const BusBookingPage = () => {
           const result = await getBookedSeatsByBusId(booking.bus.id);
 
           if (result.success) {
-            setUnavailableSeats(result.data.bookedSeats || []);
+            setUnavailableSeats(
+              (result.data as { bookedSeats: string[] }).bookedSeats || []
+            );
           } else {
             console.error("Error fetching unavailable seats:", result.error);
             setSeatError("Failed to load seats. Please try again later.");

@@ -42,7 +42,7 @@ export const deleteCookie = (key: string): void => {
 
 export const clearAllCookies = (): void => {
   const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const eqPos = cookie.indexOf("=");
     const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
     deleteCookie(name.trim());
@@ -88,7 +88,11 @@ export const getCachedData = (key: string): unknown | null => {
   const cached = getCookie(`cache_${key}`);
   if (!cached || typeof cached !== "object") return null;
 
-  const { data, timestamp, expiry } = cached as any;
+  const { data, timestamp, expiry } = cached as {
+    data: unknown;
+    timestamp: number;
+    expiry: number;
+  };
   const now = Date.now();
 
   // Check if cache is expired
@@ -106,7 +110,7 @@ export const clearCache = (key?: string): void => {
   } else {
     // Clear all cache cookies
     const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
+    for (const cookie of cookies) {
       if (cookie.trim().startsWith("cache_")) {
         const key = cookie.trim().split("=")[0];
         deleteCookie(key);

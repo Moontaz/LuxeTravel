@@ -7,7 +7,6 @@ import { TestimonialCardProps } from "@/lib/interface";
 const TestimonialCard: React.FC<TestimonialCardProps> = ({
   name,
   role,
-  location,
   rating,
   text,
   className = "",
@@ -36,7 +35,9 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             />
           ))}
         </div>
-        <p className="text-gray-700 italic leading-relaxed">"{text}"</p>
+        <p className="text-gray-700 italic leading-relaxed">
+          &ldquo;{text}&rdquo;
+        </p>
       </CardContent>
     </Card>
   );

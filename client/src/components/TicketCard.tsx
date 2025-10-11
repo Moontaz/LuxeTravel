@@ -8,7 +8,6 @@ import {
   Calendar,
   Clock,
   MapPin,
-  User,
   Loader2,
   ChevronDown,
   ChevronUp,

@@ -88,7 +88,7 @@ const AuthPage = () => {
 
     try {
       const result = await handleLogin(loginData);
-      setAlertStatus({ type: "success", message: result });
+      setAlertStatus({ type: "success", message: result as string });
       // Redirect to booking page after successful login
       setTimeout(() => {
         window.location.href = "/booking";
@@ -114,7 +114,7 @@ const AuthPage = () => {
 
     try {
       const result = await handleRegister(registerData);
-      setAlertStatus({ type: "success", message: result });
+      setAlertStatus({ type: "success", message: result as string });
       // Switch to login tab after successful registration
       setTimeout(() => {
         setActiveTab("login");
@@ -237,7 +237,7 @@ const AuthPage = () => {
 
                     <div className="text-center">
                       <p className="text-gray-600">
-                        Don't have an account?{" "}
+                        Don&apos;t have an account?{" "}
                         <button
                           type="button"
                           className="text-gray-900 font-bold hover:underline"

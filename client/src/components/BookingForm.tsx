@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,7 +18,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
-import { City, BookingFormProps } from "@/lib/interface";
+import { BookingFormProps } from "@/lib/interface";
 
 const BookingForm: React.FC<BookingFormProps> = ({
   cities,

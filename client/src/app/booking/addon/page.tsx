@@ -13,10 +13,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Footer from "@/components/footer";
-import { getCookie } from "@/lib/utils";
 import Header from "@/components/header";
 import { getFoodMenu } from "@/api/addons";
 import { Menu } from "@/lib/interface";
@@ -58,9 +56,11 @@ const FoodBookingPage = () => {
         const result = await getFoodMenu();
 
         if (result.success) {
-          setMenu(result.data);
+          setMenu(result.data as Menu[]);
         } else {
-          setError(result.error?.message || "Error fetching menu data");
+          setError(
+            (result.error as Error)?.message || "Error fetching menu data"
+          );
         }
       } catch (error) {
         const err = error as Error;
@@ -144,41 +144,39 @@ const FoodBookingPage = () => {
   };
 
   // GSAP animations on mount
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (pageRef.current) {
-      gsap.fromTo(
-        pageRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-      );
-    }
+    gsap.fromTo(
+      pageRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+    );
 
-    if (menuRef.current) {
-      gsap.fromTo(
-        menuRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: "power2.out" }
-      );
-    }
+    gsap.fromTo(
+      menuRef.current,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: "power2.out" }
+    );
 
-    if (summaryRef.current) {
-      gsap.fromTo(
-        summaryRef.current,
-        { opacity: 0, x: 20 },
-        { opacity: 1, x: 0, duration: 0.6, delay: 0.4, ease: "power2.out" }
-      );
-    }
+    gsap.fromTo(
+      summaryRef.current,
+      { opacity: 0, x: 20 },
+      { opacity: 1, x: 0, duration: 0.6, delay: 0.4, ease: "power2.out" }
+    );
   }, []);
 
   // GSAP animation for image modal
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (isImageModalOpen && imageModalRef.current) {
+    const modalElement = imageModalRef.current;
+
+    isImageModalOpen &&
+      modalElement &&
       gsap.fromTo(
-        imageModalRef.current,
+        modalElement,
         { scale: 0.9, opacity: 0 },
         { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
       );
-    }
   }, [isImageModalOpen]);
 
   // Handle submit and store selected food items in BookingContext

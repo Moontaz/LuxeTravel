@@ -7,7 +7,7 @@ import Footer from "@/components/footer";
 import GSAPWrapper from "@/components/GSAPWrapper";
 import TicketCard from "@/components/TicketCard";
 import { Ticket as TicketType } from "@/lib/interface";
-import { getCookie, fetchUserTicketsWithAddons } from "@/lib/utils";
+import { fetchUserTicketsWithAddons } from "@/lib/utils";
 import { generateTicketPDF } from "@/lib/pdfUtils";
 
 const UserTicketsPage = () => {
@@ -29,7 +29,7 @@ const UserTicketsPage = () => {
       try {
         setLoading(true);
         const userTickets = await fetchUserTicketsWithAddons();
-        setTickets(userTickets);
+        setTickets(userTickets as TicketType[]);
       } catch (err) {
         setError("Failed to load tickets");
         console.error("Error fetching tickets:", err);
@@ -109,8 +109,8 @@ const UserTicketsPage = () => {
                     No Tickets Yet
                   </h2>
                   <p className="text-gray-600 mb-8">
-                    You haven't booked any tickets yet. Start your journey with
-                    us!
+                    You haven&apos;t booked any tickets yet. Start your journey
+                    with us!
                   </p>
                   <Button
                     className="bg-gray-900 hover:bg-gray-800 text-white rounded-none px-8 py-3"

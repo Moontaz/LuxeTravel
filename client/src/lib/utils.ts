@@ -137,7 +137,7 @@ export const fetchUserTicketsWithAddons = async () => {
 
     // Step 2: Add addons for tickets that have them
     tickets = await Promise.all(
-      tickets.map(async (ticket: Ticket) => {
+      (tickets as Ticket[]).map(async (ticket: Ticket) => {
         const { ticket_code } = ticket;
 
         if (ticket_code.endsWith("1")) {
@@ -183,7 +183,7 @@ export const fetchTicketAddons = async (
     const result = await getAddonOrder(ticketCode);
 
     if (result.success) {
-      const data: FoodOrder[] = result.data || [];
+      const data: FoodOrder[] = (result.data as FoodOrder[]) || [];
 
       // Extract food_items from all orders and flatten them
       const allFoodItems: FoodItem[] = [];
