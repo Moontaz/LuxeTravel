@@ -313,15 +313,6 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, onDownload }) => {
                 <Download className="h-4 w-4 mr-2" />
                 Download Ticket
               </Button>
-              <Button
-                variant="outline"
-                className="w-full rounded-none border-gray-300 hover:bg-gray-50"
-                onClick={() =>
-                  (window.location.href = `/booking/receipt?ticket=${ticket.ticket_code}`)
-                }
-              >
-                View Details
-              </Button>
             </div>
           </div>
         </div>
