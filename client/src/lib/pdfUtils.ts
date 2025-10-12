@@ -41,10 +41,20 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
   doc.setFontSize(10);
   doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
 
-  const tripName = ticket.bus.name || "Unknown Bus";
-  const origin = ticket.bus.origin || "Unknown";
-  const destination = ticket.bus.destination || "Unknown";
-  const departureTime = ticket.bus.departureTime
+  const tripName = ticket.bus_name || ticket.bus?.name || "Unknown Bus";
+  const origin = ticket.departure_city || ticket.bus?.origin || "Unknown";
+  const destination =
+    ticket.arrival_city || ticket.bus?.destination || "Unknown";
+  const departureTime = ticket.bus_details?.departure_time
+    ? new Date(ticket.bus_details.departure_time).toLocaleString("id-ID", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : ticket.bus?.departureTime
     ? new Date(ticket.bus.departureTime).toLocaleString("id-ID", {
         weekday: "long",
         year: "numeric",
@@ -53,7 +63,7 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
         hour: "2-digit",
         minute: "2-digit",
       })
-    : "Date not available";
+    : "Time not available";
 
   doc.text(`Trip: ${tripName}`, 20, 85);
   doc.text(`Route: ${origin} → ${destination}`, 20, 95);

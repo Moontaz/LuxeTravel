@@ -81,6 +81,20 @@ export interface Ticket {
   total_price: number;
   ticket_code: string;
   created_at: string; // ISO string format for date-time
+  departure_city: string;
+  arrival_city: string;
+  bus_name: string;
+  has_addons: boolean;
+  date: string;
+  bus_details: {
+    bus_name: string;
+    departure_time: string;
+    price: number;
+    route: {
+      departure_city: string;
+      arrival_city: string;
+    };
+  };
   bus: Bus;
   addons?: AddonItem[]; // Optional addons array
   addonsLoading?: boolean; // Loading state for addons

@@ -99,7 +99,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, onDownload }) => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <CardTitle className="text-xl font-bold text-gray-900">
-              {ticket.bus.name || "Unknown Bus"}
+              {ticket.bus_name || ticket.bus?.name || "Unknown Bus"}
             </CardTitle>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline" className="rounded-none border-gray-300">
@@ -139,8 +139,10 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, onDownload }) => {
                 <div>
                   <div className="text-sm text-gray-500">Route</div>
                   <div className="font-medium text-gray-900">
-                    {ticket.bus.origin || "Unknown"} →{" "}
-                    {ticket.bus.destination || "Unknown"}
+                    {ticket.departure_city || ticket.bus?.origin || "Unknown"} →{" "}
+                    {ticket.arrival_city ||
+                      ticket.bus?.destination ||
+                      "Unknown"}
                   </div>
                 </div>
               </div>
@@ -149,7 +151,9 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, onDownload }) => {
                 <div>
                   <div className="text-sm text-gray-500">Date</div>
                   <div className="font-medium text-gray-900">
-                    {ticket.bus.departureTime
+                    {ticket.date
+                      ? formatDate(ticket.date)
+                      : ticket.bus?.departureTime
                       ? formatDate(ticket.bus.departureTime.toString())
                       : "Date not available"}
                   </div>
@@ -160,7 +164,9 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, onDownload }) => {
                 <div>
                   <div className="text-sm text-gray-500">Departure</div>
                   <div className="font-medium text-gray-900">
-                    {ticket.bus.departureTime
+                    {ticket.bus_details?.departure_time
+                      ? formatTime(ticket.bus_details.departure_time)
+                      : ticket.bus?.departureTime
                       ? formatTime(ticket.bus.departureTime.toString())
                       : "Time not available"}
                   </div>
