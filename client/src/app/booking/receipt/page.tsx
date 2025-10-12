@@ -28,6 +28,7 @@ const ReceiptPage = () => {
   const { booking, confirmBooking, setBooking } = useBooking();
   const [loading, setLoading] = useState(false);
   const [ticketCode, setTicketCode] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [userName, setUserName] = useState<string>("");
 
   // Refs for GSAP animations
@@ -221,6 +222,13 @@ const ReceiptPage = () => {
 
   // Send complete booking data to server
   const sendBookingDataToServer = async () => {
+    // Prevent double submission
+    if (isProcessing) {
+      console.log("Already processing, skipping duplicate request");
+      return;
+    }
+
+    setIsProcessing(true);
     try {
       // Extract city data with priority logic
       const departureCity =
@@ -281,15 +289,68 @@ const ReceiptPage = () => {
       const response = await createTicket(ticketData);
       console.log("Ticket created successfully:", response);
 
+      // If ticket has addons, create food order
+      if (has_addons && booking.food && booking.food.length > 0) {
+        try {
+          const ticketCode = (response.data as any)?.ticket?.ticket_code;
+          console.log("Creating food order for ticket:", ticketCode);
+
+          if (!ticketCode) {
+            console.error("No ticket code found in response");
+            return;
+          }
+
+          // Calculate total food price
+          const foodTotalPrice = booking.food.reduce((total, item) => {
+            return total + item.price * item.quantity;
+          }, 0);
+
+          // Create food order data
+          const foodOrderData = {
+            ticket_code: ticketCode,
+            food_items: booking.food,
+            total_price: foodTotalPrice,
+          };
+
+          console.log("Food order data:", foodOrderData);
+
+          // Create food order using addons API
+          const { createAddonOrder } = await import("@/api/addons");
+          const foodOrderResponse = await createAddonOrder(foodOrderData);
+
+          if (foodOrderResponse.success) {
+            console.log(
+              "Food order created successfully:",
+              foodOrderResponse.data
+            );
+          } else {
+            console.error(
+              "Failed to create food order:",
+              foodOrderResponse.error
+            );
+          }
+        } catch (error) {
+          console.error("Error creating food order:", error);
+          // Don't throw error here, ticket is already created
+        }
+      }
+
       return response;
     } catch (error) {
       console.error("Error creating ticket:", error);
       throw error;
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   // Handle download ticket
   const handleDownloadTicket = async () => {
+    if (isProcessing) {
+      console.log("Already processing, please wait...");
+      return;
+    }
+
     try {
       setLoading(true);
 

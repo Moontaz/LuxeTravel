@@ -128,6 +128,26 @@ exports.createTicket = async (req, res) => {
       });
     }
 
+    // Check for duplicate ticket (same user, bus, and seat)
+    const existingTicket = await prisma.tickets.findFirst({
+      where: {
+        user_id: parseInt(user_id),
+        bus_id: parseInt(bus_id),
+        no_seat: String(no_seat),
+      },
+    });
+
+    if (existingTicket) {
+      logger.warn(
+        `Duplicate ticket found for user ${user_id}, bus ${bus_id}, seat ${no_seat}`
+      );
+      return res.status(409).json({
+        success: false,
+        message: "Ticket already exists for this user, bus, and seat",
+        existing_ticket: existingTicket,
+      });
+    }
+
     // Generate randomized ticket code
     const ticket_code = `LUX-${Math.random()
       .toString(36)
@@ -227,27 +247,50 @@ exports.getTicketsByUserId = async (req, res) => {
     });
 
     // Format tickets to include all fields with null handling
-    const formattedTickets = tickets.map((ticket) => ({
-      ticket_id: ticket.ticket_id,
-      user_id: ticket.user_id,
-      bus_id: ticket.bus_id,
-      no_seat: ticket.no_seat,
-      total_price: ticket.total_price,
-      ticket_code: ticket.ticket_code,
-      created_at: ticket.created_at,
-      departure_city:
+    const formattedTickets = tickets.map((ticket) => {
+      // Get bus details from relation
+      const busName = ticket.bus_name || ticket.bus?.bus_name || "Unknown Bus";
+      const departureTime = ticket.bus?.departure_time || null;
+      const busPrice = ticket.bus?.price || 0;
+
+      // Get city details from relation
+      const departureCityName =
         ticket.departure_city ||
         ticket.bus?.route?.departure_city?.city_name ||
-        "Unknown",
-      arrival_city:
+        "Unknown";
+      const arrivalCityName =
         ticket.arrival_city ||
         ticket.bus?.route?.arrival_city?.city_name ||
-        "Unknown",
-      bus_name: ticket.bus_name || ticket.bus?.bus_name || "Unknown Bus",
-      has_addons: ticket.has_addons || false,
-      date: ticket.date || new Date(),
-      bus: ticket.bus,
-    }));
+        "Unknown";
+
+      return {
+        ticket_id: ticket.ticket_id,
+        user_id: ticket.user_id,
+        bus_id: ticket.bus_id,
+        no_seat: ticket.no_seat,
+        total_price: ticket.total_price,
+        ticket_code: ticket.ticket_code,
+        created_at: ticket.created_at,
+        departure_city: departureCityName,
+        arrival_city: arrivalCityName,
+        bus_name: busName,
+        has_addons: ticket.has_addons || false,
+        date: ticket.date || new Date(),
+        // Additional bus details for display
+        bus_details: {
+          bus_name: busName,
+          departure_time: departureTime,
+          price: busPrice,
+          route: {
+            departure_city:
+              ticket.bus?.route?.departure_city?.city_name || departureCityName,
+            arrival_city:
+              ticket.bus?.route?.arrival_city?.city_name || arrivalCityName,
+          },
+        },
+        bus: ticket.bus,
+      };
+    });
 
     logger.info(
       `Successfully fetched ${tickets.length} tickets for user ID: ${userId}`
