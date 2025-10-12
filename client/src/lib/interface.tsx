@@ -162,13 +162,7 @@ export interface BookingContextProps {
 
 export interface BookingFormProps {
   cities: City[];
-  onSearch: (searchData: {
-    origin: string;
-    destination: string;
-    date: Date;
-    passengers: number;
-    class: string;
-  }) => void;
+  onSearch: () => void;
   loading?: boolean;
 }
 
