@@ -370,6 +370,26 @@ const ReceiptPage = () => {
           total_price: booking.total_price || 0,
           ticket_code: ticketCode,
           created_at: new Date().toISOString(),
+          departure_city:
+            booking.departure_city || booking.bus?.origin || "Unknown",
+          arrival_city:
+            booking.arrival_city || booking.bus?.destination || "Unknown",
+          bus_name: booking.bus_name || booking.bus?.name || "Unknown Bus",
+          has_addons: booking.food && booking.food.length > 0,
+          date: booking.date?.toISOString() || new Date().toISOString(),
+          bus_details: {
+            bus_name: booking.bus_name || booking.bus?.name || "Unknown Bus",
+            departure_time:
+              booking.bus?.departureTime?.toISOString() ||
+              new Date().toISOString(),
+            price: booking.bus?.price || 0,
+            route: {
+              departure_city:
+                booking.departure_city || booking.bus?.origin || "Unknown",
+              arrival_city:
+                booking.arrival_city || booking.bus?.destination || "Unknown",
+            },
+          },
           bus: {
             id: booking.bus?.id || 0,
             name: booking.bus_name || booking.bus?.name || "Unknown Bus",
