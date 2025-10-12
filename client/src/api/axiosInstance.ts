@@ -71,7 +71,6 @@ api.interceptors.response.use(
 
     // Handle token expiration
     if (error?.response?.status === 401) {
-      console.log("Token expired, performing auto logout");
       import("@/lib/tokenUtils").then(({ performAutoLogout }) => {
         performAutoLogout();
       });
@@ -88,7 +87,6 @@ foodApi.interceptors.response.use(
 
     // Handle token expiration
     if (error?.response?.status === 401) {
-      console.log("Token expired, performing auto logout");
       import("@/lib/tokenUtils").then(({ performAutoLogout }) => {
         performAutoLogout();
       });

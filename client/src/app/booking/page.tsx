@@ -31,23 +31,11 @@ const BookingPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("=== ENVIRONMENT VARIABLES DEBUG ===");
-        console.log("NEXT_PUBLIC_BUS_URL:", process.env.NEXT_PUBLIC_BUS_URL);
-        console.log("NEXT_PUBLIC_FOOD_URL:", process.env.NEXT_PUBLIC_FOOD_URL);
-        console.log(
-          "All env vars:",
-          Object.keys(process.env).filter((key) =>
-            key.startsWith("NEXT_PUBLIC")
-          )
-        );
-        console.log("===================================");
-
         // Check cache first for better performance
         const cachedBuses = getCachedBusData();
         const cachedCities = getCachedCityData();
 
         if (cachedBuses) {
-          console.log("Using cached bus data:", cachedBuses.length, "buses");
           setBuses(cachedBuses as Bus[]);
         } else {
           // Fetch buses (with caching)
@@ -60,7 +48,6 @@ const BookingPage = () => {
         }
 
         if (cachedCities) {
-          console.log("Using cached city data:", cachedCities.length, "cities");
           setCities(cachedCities as City[]);
         } else {
           // Fetch cities (with 24h caching - optimized for frequent use)
@@ -71,9 +58,6 @@ const BookingPage = () => {
             console.error("Error fetching city data:", cityResult.error);
           }
         }
-
-        // Debug cookie state
-        logCookieState();
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -85,23 +69,15 @@ const BookingPage = () => {
   const handleSearch = async (searchParams: {
     origin: string;
     destination: string;
-    // date: Date;
-    // passengers: number;
-    // class: string;
+    date: Date;
+    passengers: number;
+    class: string;
   }) => {
     setLoading(true);
     try {
-      console.log("=== SEARCH PARAMETERS ===");
-      console.log("Origin:", searchParams.origin);
-      console.log("Destination:", searchParams.destination);
-      // console.log("Date:", searchParams.date);
-      // console.log("Passengers:", searchParams.passengers);
-      // console.log("Class:", searchParams.class);
-      console.log("========================");
-
-      // Filter buses based on search criteria
+      // Filter buses based on search criteria - only origin and destination
       const filteredBuses = buses.filter((bus) => {
-        // Filter by origin and destination
+        // Filter by origin and destination only
         const originMatch =
           bus.origin
             ?.toLowerCase()
@@ -117,21 +93,9 @@ const BookingPage = () => {
             .toLowerCase()
             .includes(bus.destination?.toLowerCase() || "");
 
-        // Filter by date (if bus has departure time)
-        // const dateMatch =
-        //   !bus.departureTime ||
-        //   new Date(bus.departureTime).toDateString() ===
-        //     searchParams.date.toDateString();
-
-        // Filter by available seats
-        // const seatMatch = bus.available_seat >= searchParams.passengers;
-
         return originMatch && destinationMatch;
       });
 
-      console.log(
-        `Filtered ${filteredBuses.length} buses from ${buses.length} total buses`
-      );
       setResults(filteredBuses);
       setShowResults(true);
     } catch (error) {
@@ -142,28 +106,10 @@ const BookingPage = () => {
   };
 
   const handleTripSelect = (trip: Bus) => {
-    // Debug: Log the trip data to see what we're working with
-    console.log("=== TRIP SELECTION DEBUG ===");
-    console.log("Selected trip:", trip);
-    console.log("Trip origin:", trip.origin);
-    console.log("Trip destination:", trip.destination);
-    console.log("Trip busName:", trip.busName);
-    console.log("Trip name:", trip.name);
-    console.log("Trip id:", trip.id);
-    console.log("Full trip object keys:", Object.keys(trip));
-    console.log("===========================");
-
     // Find the actual bus data from the buses array
     const actualBus = buses.find(
       (bus) => bus.id.toString() === trip.id.toString()
     );
-    console.log("=== ACTUAL BUS DATA ===");
-    console.log("Found bus:", actualBus);
-    console.log("Bus origin:", actualBus?.origin);
-    console.log("Bus destination:", actualBus?.destination);
-    console.log("Bus name:", actualBus?.name);
-    console.log("Bus busName:", actualBus?.busName);
-    console.log("======================");
 
     // Extract city data with better fallbacks - prioritize actual bus data
     const departureCity =

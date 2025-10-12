@@ -37,12 +37,10 @@ export const isAnyTokenExpired = (): boolean => {
   const { token1, token2 } = getAuthTokens();
 
   if (token1 && isTokenExpired(token1)) {
-    console.log("Token1 is expired");
     return true;
   }
 
   if (token2 && isTokenExpired(token2)) {
-    console.log("Token2 is expired");
     return true;
   }
 
@@ -70,8 +68,6 @@ export const getTimeUntilExpiration = (token: string): number => {
  * Perform auto logout when tokens are expired
  */
 export const performAutoLogout = (): void => {
-  console.log("Performing auto logout due to token expiration");
-
   // Clear all user data
   clearAllUserData();
 
@@ -140,17 +136,12 @@ export const setupTokenMonitoring = (
       const logoutTime = Math.max(0, earliestExpiration - 60000);
 
       timeoutId = setTimeout(() => {
-        console.log("Token expiration detected, performing auto logout");
         if (onExpiration) {
           onExpiration();
         } else {
           performAutoLogout();
         }
       }, logoutTime);
-
-      console.log(
-        `Auto logout scheduled in ${Math.round(logoutTime / 1000)} seconds`
-      );
     }
   };
 
