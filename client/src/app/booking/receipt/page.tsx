@@ -292,7 +292,9 @@ const ReceiptPage = () => {
       // If ticket has addons, create food order
       if (has_addons && booking.food && booking.food.length > 0) {
         try {
-          const ticketCode = (response.data as any)?.ticket?.ticket_code;
+          const ticketCode = (
+            response.data as { ticket?: { ticket_code?: string } }
+          )?.ticket?.ticket_code;
           console.log("Creating food order for ticket:", ticketCode);
 
           if (!ticketCode) {
