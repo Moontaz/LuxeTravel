@@ -1,6 +1,8 @@
 "use client";
 import "./globals.css";
 import { BookingProvider } from "./context/BookingContext";
+import TokenMonitor from "@/components/TokenMonitor";
+
 export default function RootLayout({
   children,
 }: {
@@ -9,7 +11,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <BookingProvider>{children}</BookingProvider>
+        <BookingProvider>
+          <TokenMonitor>{children}</TokenMonitor>
+        </BookingProvider>
       </body>
     </html>
   );

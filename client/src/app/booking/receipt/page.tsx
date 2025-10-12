@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/footer";
-import { generateTicketCode, getCookie } from "@/lib/utils";
+import { getCookie } from "@/lib/utils";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from "@/lib/interface";
 import Header from "@/components/header";

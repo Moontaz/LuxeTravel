@@ -68,6 +68,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("API Error:", error);
+
+    // Handle token expiration
+    if (error?.response?.status === 401) {
+      console.log("Token expired, performing auto logout");
+      const { performAutoLogout } = require("@/lib/tokenUtils");
+      performAutoLogout();
+    }
+
     return Promise.reject(error?.response?.data || error);
   }
 );
@@ -76,6 +84,14 @@ foodApi.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("API Error:", error);
+
+    // Handle token expiration
+    if (error?.response?.status === 401) {
+      console.log("Token expired, performing auto logout");
+      const { performAutoLogout } = require("@/lib/tokenUtils");
+      performAutoLogout();
+    }
+
     return Promise.reject(error?.response?.data || error);
   }
 );
