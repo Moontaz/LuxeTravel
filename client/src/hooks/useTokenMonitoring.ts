@@ -13,6 +13,11 @@ export const useTokenMonitoring = (
   const cleanupRef = useRef<(() => void) | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Skip on server side (Vercel compatibility)
+  if (typeof window === "undefined") {
+    return { checkTokens: () => false };
+  }
+
   useEffect(() => {
     // Initial check
     if (checkTokensAndLogout()) {

@@ -3,6 +3,11 @@ import { Ticket, FoodItem } from "./interface";
 import { fetchTicketAddons } from "./utils";
 
 export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
+  // Check if we're in browser environment (Vercel compatibility)
+  if (typeof window === "undefined") {
+    throw new Error("PDF generation is only available in browser environment");
+  }
+
   const doc = new jsPDF();
 
   // Set font

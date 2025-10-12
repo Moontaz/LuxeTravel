@@ -104,6 +104,11 @@ export const checkTokensAndLogout = (): boolean => {
 export const setupTokenMonitoring = (
   onExpiration?: () => void
 ): (() => void) => {
+  // Check if we're in browser environment (Vercel compatibility)
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
   const { token1, token2 } = getAuthTokens();
 
   let timeoutId: NodeJS.Timeout | null = null;

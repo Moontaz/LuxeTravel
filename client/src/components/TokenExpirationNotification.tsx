@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getTimeUntilExpiration, getAuthTokens } from "@/lib/tokenUtils";
+import { getTimeUntilExpiration } from "@/lib/tokenUtils";
+import { getAuthTokens } from "@/lib/cookieHandler";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 interface TokenExpirationNotificationProps {
   onLogout: () => void;

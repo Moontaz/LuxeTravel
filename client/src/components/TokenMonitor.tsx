@@ -14,6 +14,11 @@ const TokenMonitor: React.FC<TokenMonitorProps> = ({ children }) => {
   const { checkTokens } = useTokenMonitoring();
 
   useEffect(() => {
+    // Skip on server side (Vercel compatibility)
+    if (typeof window === "undefined") {
+      return;
+    }
+
     // Check tokens on mount and route changes
     const handleRouteChange = () => {
       if (checkTokens()) {
