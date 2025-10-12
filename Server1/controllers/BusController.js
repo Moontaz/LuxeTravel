@@ -148,13 +148,13 @@ exports.createTicket = async (req, res) => {
       data: {
         user_id: Number(user_id),
         bus_id: Number(bus_id),
-        no_seat,
+        no_seat: String(no_seat), // Ensure string
         total_price: Number(total_price),
         ticket_code,
         date: new Date(date), // Required field - not null
-        bus_name, // Required field - not null
-        departure_city, // Required field - not null
-        arrival_city, // Required field - not null (changed from destination_city)
+        bus_name: String(bus_name), // Required field - not null, ensure string
+        departure_city: String(departure_city), // Required field - not null, ensure string
+        arrival_city: String(arrival_city), // Required field - not null, ensure string
         has_addons: Boolean(has_addons) || false, // Default to false if not provided
       },
     });
@@ -197,14 +197,26 @@ exports.getTicketsByUserId = async (req, res) => {
     const tickets = await prisma.tickets.findMany({
       where: { user_id: parseInt(userId) },
       orderBy: { created_at: "desc" },
-      include: {
+      select: {
+        ticket_id: true,
+        user_id: true,
+        bus_id: true,
+        no_seat: true,
+        total_price: true,
+        ticket_code: true,
+        created_at: true,
+        departure_city: true,
+        arrival_city: true,
+        bus_name: true,
+        has_addons: true,
+        date: true,
         bus: {
           select: {
             bus_name: true,
             departure_time: true,
             price: true,
             route: {
-              include: {
+              select: {
                 departure_city: { select: { city_name: true } },
                 arrival_city: { select: { city_name: true } },
               },
@@ -214,14 +226,27 @@ exports.getTicketsByUserId = async (req, res) => {
       },
     });
 
-    // Format tickets to include all fields according to Supabase schema
+    // Format tickets to include all fields with null handling
     const formattedTickets = tickets.map((ticket) => ({
-      ...ticket,
-      departure_city: ticket.departure_city,
-      arrival_city: ticket.arrival_city, // Changed from destination_city to arrival_city
-      bus_name: ticket.bus_name,
-      date: ticket.date,
-      has_addons: ticket.has_addons,
+      ticket_id: ticket.ticket_id,
+      user_id: ticket.user_id,
+      bus_id: ticket.bus_id,
+      no_seat: ticket.no_seat,
+      total_price: ticket.total_price,
+      ticket_code: ticket.ticket_code,
+      created_at: ticket.created_at,
+      departure_city:
+        ticket.departure_city ||
+        ticket.bus?.route?.departure_city?.city_name ||
+        "Unknown",
+      arrival_city:
+        ticket.arrival_city ||
+        ticket.bus?.route?.arrival_city?.city_name ||
+        "Unknown",
+      bus_name: ticket.bus_name || ticket.bus?.bus_name || "Unknown Bus",
+      has_addons: ticket.has_addons || false,
+      date: ticket.date || new Date(),
+      bus: ticket.bus,
     }));
 
     logger.info(
@@ -240,6 +265,20 @@ exports.getTicketsByUserId = async (req, res) => {
         message:
           "Database schema is out of sync. Please run migration to add missing columns.",
         error: "DB_SCHEMA_MISMATCH",
+      });
+    }
+
+    // Check if it's a null value error
+    if (error.message && error.message.includes("null")) {
+      logger.error(
+        `Prisma null value error in getTicketsByUserId: ${error.message}`,
+        error.meta || error
+      );
+      return res.status(500).json({
+        success: false,
+        message:
+          "Database contains invalid null values. Please contact administrator.",
+        error: "DB_NULL_VALUE_ERROR",
       });
     }
 
