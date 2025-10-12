@@ -17,10 +17,53 @@ const UserTicketsPage = () => {
 
   const handleDownload = async (ticket: TicketType) => {
     try {
-      await generateTicketPDF(ticket);
+      console.log("Starting PDF generation for ticket:", ticket.ticket_code);
+
+      // Generate PDF
+      const pdfBlob = await generateTicketPDF(ticket);
+      console.log("PDF generated successfully, size:", pdfBlob.size);
+
+      // Check if blob is valid
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error("Generated PDF is empty or invalid");
+      }
+
+      // Create download link with better error handling
+      const url = URL.createObjectURL(pdfBlob);
+
+      // Create link element
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `ticket-${ticket.ticket_code}.pdf`;
+      link.style.display = "none";
+
+      // Add to DOM, click, and remove
+      document.body.appendChild(link);
+
+      // Trigger download with user interaction
+      const clickEvent = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      });
+      link.dispatchEvent(clickEvent);
+
+      // Clean up
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+        URL.revokeObjectURL(url);
+      }, 100);
+
+      console.log("Download initiated successfully");
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
+      alert(
+        `Failed to generate PDF: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 

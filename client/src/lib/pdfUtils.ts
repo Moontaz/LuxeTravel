@@ -9,7 +9,9 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
   }
 
   try {
+    console.log("Creating PDF document...");
     const doc = new jsPDF();
+    console.log("PDF document created successfully");
 
     // Set font
     doc.setFont("helvetica");
@@ -252,7 +254,10 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
     doc.text("For support, contact: support@luxetravel.com", 20, yPosition + 5);
 
     // Return the PDF as Blob
-    return doc.output("blob");
+    console.log("Generating PDF blob...");
+    const blob = doc.output("blob");
+    console.log("PDF blob generated successfully, size:", blob.size);
+    return blob;
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw new Error(
