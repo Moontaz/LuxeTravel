@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import { Ticket, FoodItem } from "./interface";
 import { fetchTicketAddons } from "./utils";
 
-export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
+export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
   const doc = new jsPDF();
 
   // Set font
@@ -212,7 +212,6 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<void> => {
   doc.text("Thank you for choosing Luxe Travel!", 20, yPosition);
   doc.text("For support, contact: support@luxetravel.com", 20, yPosition + 5);
 
-  // Save the PDF
-  const fileName = `ticket-${tripName.toLowerCase().replace(/\s+/g, "-")}.pdf`;
-  doc.save(fileName);
+  // Return the PDF as Blob
+  return doc.output("blob");
 };

@@ -43,6 +43,18 @@ router.post("/order-food", verifyToken, async (req, res, next) => {
   }
 });
 
+// Alternative route for compatibility
+router.post("/order", verifyToken, async (req, res, next) => {
+  try {
+    logger.info(
+      `User ID ${req.userId} is creating a new food order (alternative route)`
+    ); // Log info
+    await createFoodOrder(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Protected route: Update a food order by ID
 router.put("/updateorder/:id", verifyToken, async (req, res, next) => {
   try {

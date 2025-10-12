@@ -18,6 +18,12 @@ const GSAPWrapper: React.FC<GSAPWrapperProps> = ({
 
     const element = elementRef.current;
 
+    // Check if element exists before animating
+    if (!element) {
+      console.warn("GSAP target element not found");
+      return;
+    }
+
     // Set initial state based on animation type
     switch (animation) {
       case "fadeIn":
@@ -27,7 +33,9 @@ const GSAPWrapper: React.FC<GSAPWrapperProps> = ({
         gsap.set(element, { opacity: 0, y: 30 });
         break;
       case "stagger":
-        gsap.set(element.children, { opacity: 0, y: 20 });
+        if (element.children && element.children.length > 0) {
+          gsap.set(element.children, { opacity: 0, y: 20 });
+        }
         break;
       default:
         break;
@@ -45,13 +53,15 @@ const GSAPWrapper: React.FC<GSAPWrapperProps> = ({
         tl.to(element, { opacity: 1, y: 0, duration, ease: "power2.out" });
         break;
       case "stagger":
-        tl.to(element.children, {
-          opacity: 1,
-          y: 0,
-          duration,
-          stagger,
-          ease: "power2.out",
-        });
+        if (element.children && element.children.length > 0) {
+          tl.to(element.children, {
+            opacity: 1,
+            y: 0,
+            duration,
+            stagger,
+            ease: "power2.out",
+          });
+        }
         break;
       default:
         break;

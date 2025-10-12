@@ -82,15 +82,56 @@ const BookingPage = () => {
     fetchData();
   }, []);
 
-  const handleSearch = async () => {
+  const handleSearch = async (searchParams: {
+    origin: string;
+    destination: string;
+    date: Date;
+    passengers: number;
+    class: string;
+  }) => {
     setLoading(true);
     try {
+      console.log("=== SEARCH PARAMETERS ===");
+      console.log("Origin:", searchParams.origin);
+      console.log("Destination:", searchParams.destination);
+      console.log("Date:", searchParams.date);
+      console.log("Passengers:", searchParams.passengers);
+      console.log("Class:", searchParams.class);
+      console.log("========================");
+
       // Filter buses based on search criteria
-      const filteredBuses = buses.filter(() => {
-        // Add your filtering logic here based on origin, destination, date, etc.
-        return true; // For now, return all buses
+      const filteredBuses = buses.filter((bus) => {
+        // Filter by origin and destination
+        const originMatch =
+          bus.origin
+            ?.toLowerCase()
+            .includes(searchParams.origin.toLowerCase()) ||
+          searchParams.origin
+            .toLowerCase()
+            .includes(bus.origin?.toLowerCase() || "");
+        const destinationMatch =
+          bus.destination
+            ?.toLowerCase()
+            .includes(searchParams.destination.toLowerCase()) ||
+          searchParams.destination
+            .toLowerCase()
+            .includes(bus.destination?.toLowerCase() || "");
+
+        // Filter by date (if bus has departure time)
+        const dateMatch =
+          !bus.departureTime ||
+          new Date(bus.departureTime).toDateString() ===
+            searchParams.date.toDateString();
+
+        // Filter by available seats
+        const seatMatch = bus.available_seat >= searchParams.passengers;
+
+        return originMatch && destinationMatch && dateMatch && seatMatch;
       });
 
+      console.log(
+        `Filtered ${filteredBuses.length} buses from ${buses.length} total buses`
+      );
       setResults(filteredBuses);
       setShowResults(true);
     } catch (error) {

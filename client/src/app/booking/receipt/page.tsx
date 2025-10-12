@@ -35,7 +35,7 @@ const ReceiptPage = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Get user data and generate ticket code
+  // Get user data
   useEffect(() => {
     const token1 = getCookie("token1");
     if (token1) {
@@ -47,22 +47,14 @@ const ReceiptPage = () => {
         setUserName("Unknown User");
       }
     }
+  }, []);
 
-    // Generate ticket code
-    const userData = { name: userName, id: 1 };
-    const busData = booking?.bus
-      ? {
-          name: booking.bus.name,
-          id: booking.bus.id,
-          origin: booking.bus.origin,
-          destination: booking.bus.destination,
-          departureTime: booking.bus.departureTime,
-        }
-      : undefined;
-
-    const code = generateTicketCode(true, userData, busData);
-    setTicketCode(code);
-  }, [booking, userName]);
+  // Set ticket code from server response
+  useEffect(() => {
+    if (booking?.ticketCode) {
+      setTicketCode(booking.ticketCode);
+    }
+  }, [booking?.ticketCode]);
 
   // Debug: Log booking data to console
   useEffect(() => {
@@ -289,18 +281,25 @@ const ReceiptPage = () => {
       const response = await createTicket(ticketData);
       console.log("Ticket created successfully:", response);
 
-      // If ticket has addons, create food order
-      if (has_addons && booking.food && booking.food.length > 0) {
-        try {
-          const ticketCode = (
-            response.data as { ticket?: { ticket_code?: string } }
-          )?.ticket?.ticket_code;
-          console.log("Creating food order for ticket:", ticketCode);
+      // Extract ticket code from response and update context
+      const ticketCode = (
+        response.data as { ticket?: { ticket_code?: string } }
+      )?.ticket?.ticket_code;
 
-          if (!ticketCode) {
-            console.error("No ticket code found in response");
-            return;
-          }
+      if (ticketCode) {
+        // Update booking context with ticket code
+        setBooking({
+          ...booking,
+          ticketCode: ticketCode,
+        });
+        setTicketCode(ticketCode);
+        console.log("Ticket code saved to context:", ticketCode);
+      }
+
+      // If ticket has addons, create food order
+      if (has_addons && booking.food && booking.food.length > 0 && ticketCode) {
+        try {
+          console.log("Creating food order for ticket:", ticketCode);
 
           // Calculate total food price
           const foodTotalPrice = booking.food.reduce((total, item) => {
@@ -359,8 +358,45 @@ const ReceiptPage = () => {
       // Send complete data to server first
       await sendBookingDataToServer();
 
-      // Then implement PDF generation
-      console.log("Download ticket functionality to be implemented");
+      // Generate PDF ticket
+      const { generateTicketPDF } = await import("@/lib/pdfUtils");
+
+      if (booking && ticketCode) {
+        const pdfBlob = await generateTicketPDF({
+          ticket_id: 0,
+          user_id: 0,
+          bus_id: booking.bus?.id || 0,
+          no_seat: booking.no_seat || "Unknown",
+          total_price: booking.total_price || 0,
+          ticket_code: ticketCode,
+          created_at: new Date().toISOString(),
+          bus: {
+            id: booking.bus?.id || 0,
+            name: booking.bus_name || booking.bus?.name || "Unknown Bus",
+            origin: booking.departure_city || booking.bus?.origin || "Unknown",
+            destination:
+              booking.arrival_city || booking.bus?.destination || "Unknown",
+            departureTime: booking.bus?.departureTime || new Date(),
+            price: booking.bus?.price || 0,
+            available_seat: booking.bus?.available_seat || 0,
+            seat_capacity: booking.bus?.seat_capacity || 0,
+          },
+        });
+
+        // Create download link
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `ticket-${ticketCode}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log("Ticket PDF downloaded successfully");
+      } else {
+        console.error("Missing booking data or ticket code for PDF generation");
+      }
     } catch (error) {
       console.error("Error in download ticket:", error);
       // You might want to show an error message to the user here
