@@ -12,11 +12,7 @@ import BookingForm from "@/components/BookingForm";
 import TripCard from "@/components/TripCard";
 import GSAPWrapper from "@/components/GSAPWrapper";
 import { getAllBuses, getAllCities } from "@/api/bus";
-import {
-  getCachedCityData,
-  getCachedBusData,
-  logCookieState,
-} from "@/lib/cookieHandler";
+import { getCachedCityData, getCachedBusData } from "@/lib/cookieHandler";
 
 const BookingPage = () => {
   const { setBooking } = useBooking();
