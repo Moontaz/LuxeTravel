@@ -71,28 +71,8 @@ const BookingPage = () => {
   }) => {
     setLoading(true);
     try {
-      // Filter buses based on search criteria - only origin and destination
-      const filteredBuses = buses.filter((bus) => {
-        // Filter by origin and destination only
-        const originMatch =
-          bus.origin
-            ?.toLowerCase()
-            .includes(searchParams.origin.toLowerCase()) ||
-          searchParams.origin
-            .toLowerCase()
-            .includes(bus.origin?.toLowerCase() || "");
-        const destinationMatch =
-          bus.destination
-            ?.toLowerCase()
-            .includes(searchParams.destination.toLowerCase()) ||
-          searchParams.destination
-            .toLowerCase()
-            .includes(bus.destination?.toLowerCase() || "");
-
-        return originMatch && destinationMatch;
-      });
-
-      setResults(filteredBuses);
+      // Show all buses without filtering
+      setResults(buses);
       setShowResults(true);
     } catch (error) {
       console.error("Error searching buses:", error);
