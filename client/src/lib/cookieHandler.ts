@@ -79,7 +79,12 @@ export const setCookie = (
     sameSite: "Lax" as const,
   };
 
-  Cookies.set(key, JSON.stringify(value), options);
+  // For string values (like tokens), don't JSON stringify them
+  const cookieValue = typeof value === "string" ? value : JSON.stringify(value);
+
+  console.log(`Setting cookie ${key}:`, cookieValue.substring(0, 50) + "...");
+
+  Cookies.set(key, cookieValue, options);
 };
 
 /**
@@ -89,11 +94,19 @@ export const setCookie = (
  */
 export const getCookie = (key: string): unknown | null => {
   const val = Cookies.get(key);
-  if (!val) return null;
+  if (!val) {
+    console.log(`Cookie ${key} not found`);
+    return null;
+  }
+
+  console.log(`Getting cookie ${key}:`, val.substring(0, 50) + "...");
 
   try {
-    return JSON.parse(val);
+    const parsed = JSON.parse(val);
+    console.log(`Cookie ${key} parsed as JSON:`, typeof parsed);
+    return parsed;
   } catch {
+    console.log(`Cookie ${key} returned as string:`, typeof val);
     return val; // Return as string if JSON parsing fails
   }
 };
@@ -128,8 +141,15 @@ export const clearAllCookies = (): void => {
  * @param {string} token2 - Food API token
  */
 export const setAuthTokens = (token1: string, token2: string): void => {
+  console.log("Setting auth tokens:", {
+    token1: token1 ? token1.substring(0, 20) + "..." : "null",
+    token2: token2 ? token2.substring(0, 20) + "..." : "null",
+  });
+
   setCookie("token1", token1, 1); // Token1 expires in 1 day
   setCookie("token2", token2, 1); // Token2 expires in 1 day
+
+  console.log("Auth tokens saved to cookies");
 };
 
 /**
@@ -139,6 +159,13 @@ export const setAuthTokens = (token1: string, token2: string): void => {
 export const getAuthTokens = (): AuthTokens => {
   const token1 = getCookie("token1") as string | null;
   const token2 = getCookie("token2") as string | null;
+
+  // Debug logging
+  console.log("Getting auth tokens from cookies:", {
+    token1: token1 ? token1.substring(0, 20) + "..." : "null",
+    token2: token2 ? token2.substring(0, 20) + "..." : "null",
+  });
+
   return { token1, token2 };
 };
 

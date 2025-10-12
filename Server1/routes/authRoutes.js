@@ -42,12 +42,16 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    logger.info(`Login attempt for email: ${email}`);
+
     // Find user in the database
     const user = await prisma.users.findUnique({ where: { email } });
     if (!user) {
       logger.info(`Login attempt for non-existing user: ${email}`);
       return res.status(404).json({ message: "No user found" });
     }
+
+    logger.info(`User found with ID: ${user.user_id}`);
 
     // Validate password
     const validPassword = await bcrypt.compare(password, user.password);
@@ -57,20 +61,32 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: user.user_id,
+    const tokenPayload = {
+      id: user.user_id,
+      name: user.name,
+      email: user.email,
+    };
+
+    logger.info(
+      `Generating token with payload: ${JSON.stringify(tokenPayload)}`
+    );
+
+    const token = jwt.sign(tokenPayload, SECRET_KEY, {
+      expiresIn: "1h",
+    });
+
+    logger.info(`Token generated successfully for user: ${email}`);
+    logger.info(`Token preview: ${token.substring(0, 20)}...`);
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        user_id: user.user_id,
         name: user.name,
         email: user.email,
       },
-      SECRET_KEY,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    logger.info(`User logged in: ${email}`);
-    res.status(200).json({ token });
+    });
   } catch (error) {
     logger.error(`Error during login: ${error.message}`);
     console.error(`Error logging in user: ${error.message}`);

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuthTokens } from "@/utils/cookies";
+import { getAuthTokens } from "@/lib/cookieHandler";
 
 // Create axios instance with global configuration
 const api = axios.create({
@@ -28,8 +28,18 @@ api.interceptors.request.use(
   (config) => {
     // Add token1 for bus API using centralized cookie utility
     const { token1 } = getAuthTokens();
+    console.log("Auth tokens from cookie:", {
+      token1: token1 ? token1.substring(0, 20) + "..." : "null",
+    });
+
     if (token1) {
       config.headers.Authorization = `Bearer ${token1}`;
+      console.log(
+        "Authorization header set:",
+        `Bearer ${token1.substring(0, 20)}...`
+      );
+    } else {
+      console.warn("No token1 found in cookies");
     }
     return config;
   },

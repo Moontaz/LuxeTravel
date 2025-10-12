@@ -55,6 +55,9 @@ app.use((req, res, next) => {
 // Middleware to log incoming requests
 app.use((req, res, next) => {
   logger.info(`Incoming request: ${req.method} ${req.url}`);
+  logger.info(
+    `Authorization header: ${req.headers.authorization || "Not provided"}`
+  );
   next();
 });
 
