@@ -38,7 +38,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
       alert("Please fill in all required fields");
       return;
     }
-    onSearch({ origin, destination, date, passengers, class: travelClass });
+    onSearch();
   };
 
   return (

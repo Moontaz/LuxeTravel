@@ -62,13 +62,7 @@ const BookingPage = () => {
     fetchData();
   }, []);
 
-  const handleSearch = async (searchParams: {
-    origin: string;
-    destination: string;
-    date: Date;
-    passengers: number;
-    class: string;
-  }) => {
+  const handleSearch = async () => {
     setLoading(true);
     try {
       // Show all buses without filtering
