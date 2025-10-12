@@ -85,18 +85,18 @@ const BookingPage = () => {
   const handleSearch = async (searchParams: {
     origin: string;
     destination: string;
-    date: Date;
-    passengers: number;
-    class: string;
+    // date: Date;
+    // passengers: number;
+    // class: string;
   }) => {
     setLoading(true);
     try {
       console.log("=== SEARCH PARAMETERS ===");
       console.log("Origin:", searchParams.origin);
       console.log("Destination:", searchParams.destination);
-      console.log("Date:", searchParams.date);
-      console.log("Passengers:", searchParams.passengers);
-      console.log("Class:", searchParams.class);
+      // console.log("Date:", searchParams.date);
+      // console.log("Passengers:", searchParams.passengers);
+      // console.log("Class:", searchParams.class);
       console.log("========================");
 
       // Filter buses based on search criteria
@@ -118,15 +118,15 @@ const BookingPage = () => {
             .includes(bus.destination?.toLowerCase() || "");
 
         // Filter by date (if bus has departure time)
-        const dateMatch =
-          !bus.departureTime ||
-          new Date(bus.departureTime).toDateString() ===
-            searchParams.date.toDateString();
+        // const dateMatch =
+        //   !bus.departureTime ||
+        //   new Date(bus.departureTime).toDateString() ===
+        //     searchParams.date.toDateString();
 
         // Filter by available seats
-        const seatMatch = bus.available_seat >= searchParams.passengers;
+        // const seatMatch = bus.available_seat >= searchParams.passengers;
 
-        return originMatch && destinationMatch && dateMatch && seatMatch;
+        return originMatch && destinationMatch;
       });
 
       console.log(
