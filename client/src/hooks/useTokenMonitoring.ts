@@ -13,12 +13,12 @@ export const useTokenMonitoring = (
   const cleanupRef = useRef<(() => void) | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Skip on server side (Vercel compatibility)
-  if (typeof window === "undefined") {
-    return { checkTokens: () => false };
-  }
-
   useEffect(() => {
+    // Skip on server side (Vercel compatibility)
+    if (typeof window === "undefined") {
+      return;
+    }
+
     // Initial check
     if (checkTokensAndLogout()) {
       return; // Already logged out
@@ -51,7 +51,15 @@ export const useTokenMonitoring = (
     };
   }, [onExpiration, checkInterval]);
 
+  // Return safe function for server-side
+  const checkTokens = () => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return checkTokensAndLogout();
+  };
+
   return {
-    checkTokens: checkTokensAndLogout,
+    checkTokens,
   };
 };
