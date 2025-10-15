@@ -7,6 +7,7 @@ const {
   createTicket,
   getTicketsByUserId,
   getBookedSeatsByBusId,
+  deleteTicketByCode,
 } = require("../controllers/BusController.js"); // Import controller
 const logger = require("../config/logger"); // Import the logger
 
@@ -51,6 +52,12 @@ router.post("/book-ticket", verifyToken, (req, res, next) => {
 router.get("/tickets/:user_id", verifyToken, (req, res, next) => {
   logger.info(`Request to get tickets for user ID: ${req.params.user_id}`); // Log info
   getTicketsByUserId(req, res).catch(next); // Handle errors in controller
+});
+
+// Protected route: Delete ticket by ticket code
+router.delete("/ticket/:ticket_code", verifyToken, (req, res, next) => {
+  logger.info(`Request to delete ticket: ${req.params.ticket_code}`);
+  deleteTicketByCode(req, res).catch(next);
 });
 
 module.exports = router;

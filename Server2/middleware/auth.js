@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const logger = require("../config/logger"); // Impor logger
 
-const SECRET_KEY = "inibuatpesenmakanan"; // Sebaiknya gunakan variabel lingkungan untuk kunci rahasia
+const SECRET_KEY = process.env.JWT_SECRET_FOOD || "fallback_food_secret"; // Use environment variable
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {

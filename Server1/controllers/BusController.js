@@ -398,3 +398,33 @@ exports.getBookedSeatsByBusId = async (req, res) => {
       .json({ error: "Failed to fetch booked seats. Please try again." });
   }
 };
+
+// Function to delete ticket by ticket code
+exports.deleteTicketByCode = async (req, res) => {
+  const { ticket_code } = req.params;
+
+  try {
+    const ticket = await prisma.tickets.findFirst({
+      where: { ticket_code: ticket_code },
+    });
+
+    if (!ticket) {
+      logger.warn(`Ticket not found: ${ticket_code}`);
+      return res
+        .status(404)
+        .json({ success: false, message: "Ticket not found" });
+    }
+
+    await prisma.tickets.delete({
+      where: { ticket_id: ticket.ticket_id },
+    });
+
+    logger.info(`Ticket deleted: ${ticket_code}`);
+    res
+      .status(200)
+      .json({ success: true, message: "Ticket deleted successfully" });
+  } catch (error) {
+    logger.error(`Error deleting ticket: ${error.message}`);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

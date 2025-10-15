@@ -136,6 +136,19 @@ export const getTicketById = async (
   }
 };
 
+// Function to delete ticket by ticket code
+export const deleteTicket = async (
+  ticketCode: string
+): Promise<TicketResponse> => {
+  try {
+    const response = await api.delete(`/api/bus/ticket/${ticketCode}`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error deleting ticket:", error);
+    return { success: false, error };
+  }
+};
+
 // Function to download ticket (placeholder for future implementation)
 export const downloadTicket = async (): Promise<TicketResponse> => {
   try {

@@ -212,51 +212,18 @@ const ReceiptPage = () => {
     }
   };
 
-  // Send complete booking data to server
-  const sendBookingDataToServer = async () => {
-    // Prevent double submission
-    if (isProcessing) {
-      console.log("Already processing, skipping duplicate request");
-      return;
-    }
-
+  // Handle confirmation and create ticket with rollback logic
+  const handleConfirmAndCreateTicket = async () => {
+    if (isProcessing) return;
     setIsProcessing(true);
+    setLoading(true);
+
     try {
-      // Extract city data with priority logic
-      const departureCity =
-        booking.route?.departure_city ||
-        booking.departure_city ||
-        booking.bus?.origin ||
-        "Unknown";
-
-      const destinationCity =
-        booking.route?.arrival_city ||
-        booking.arrival_city ||
-        booking.bus?.destination ||
-        "Unknown";
-
-      console.log("=== SERVER DATA EXTRACTION ===");
-      console.log("Departure city extracted:", departureCity);
-      console.log("Destination city extracted:", destinationCity);
-      console.log("=================================");
-
-      // Get user ID from token
+      // 1. Extract data
       const token1 = getCookie("token1");
-      let userId = null;
-      if (token1) {
-        try {
-          const decoded: DecodedToken = jwtDecode(token1);
-          userId = decoded.id;
-        } catch (error) {
-          console.error("Error decoding token:", error);
-        }
-      }
+      const decoded: DecodedToken = jwtDecode(token1);
+      const userId = decoded.id;
 
-      if (!userId) {
-        throw new Error("User ID not found. Please login again.");
-      }
-
-      // Check if user has addons
       const has_addons = booking.food && booking.food.length > 0;
 
       const ticketData = {
@@ -268,95 +235,78 @@ const ReceiptPage = () => {
           ? format(new Date(booking.bus.departureTime), "yyyy-MM-dd")
           : format(new Date(), "yyyy-MM-dd"),
         bus_name: booking.bus_name || booking.bus?.name || "Unknown Bus",
-        departure_city: departureCity,
-        arrival_city: destinationCity,
+        departure_city:
+          booking.route?.departure_city ||
+          booking.departure_city ||
+          booking.bus?.origin ||
+          "Unknown",
+        arrival_city:
+          booking.route?.arrival_city ||
+          booking.arrival_city ||
+          booking.bus?.destination ||
+          "Unknown",
         has_addons: has_addons,
       };
 
-      console.log("=== SENDING TICKET DATA TO SERVER ===");
-      console.log("Complete ticket data:", ticketData);
-      console.log("=====================================");
+      // 2. Create ticket
+      const ticketResponse = await createTicket(ticketData);
+      if (!ticketResponse.success) throw new Error("Failed to create ticket");
 
-      // Create ticket using API
-      const response = await createTicket(ticketData);
-      console.log("Ticket created successfully:", response);
+      const newTicketCode = ticketResponse.data?.ticket?.ticket_code;
+      if (!newTicketCode) throw new Error("No ticket code returned");
 
-      // Extract ticket code from response and update context
-      const ticketCode = (
-        response.data as { ticket?: { ticket_code?: string } }
-      )?.ticket?.ticket_code;
+      setTicketCode(newTicketCode);
+      setBooking({ ...booking, ticketCode: newTicketCode });
 
-      if (ticketCode) {
-        // Update booking context with ticket code
-        setBooking({
-          ...booking,
-          ticketCode: ticketCode,
-        });
-        setTicketCode(ticketCode);
-        console.log("Ticket code saved to context:", ticketCode);
-      }
+      // 3. If has addons, create addon order
+      if (has_addons && booking.food.length > 0) {
+        const foodTotalPrice = booking.food.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
+        const foodOrderData = {
+          ticket_code: newTicketCode,
+          food_items: booking.food,
+          total_price: foodTotalPrice,
+        };
 
-      // If ticket has addons, create food order
-      if (has_addons && booking.food && booking.food.length > 0 && ticketCode) {
-        try {
-          console.log("Creating food order for ticket:", ticketCode);
+        const { createAddonOrder } = await import("@/api/addons");
+        const addonResponse = await createAddonOrder(foodOrderData);
 
-          // Calculate total food price
-          const foodTotalPrice = booking.food.reduce((total, item) => {
-            return total + item.price * item.quantity;
-          }, 0);
-
-          // Create food order data
-          const foodOrderData = {
-            ticket_code: ticketCode,
-            food_items: booking.food,
-            total_price: foodTotalPrice,
-          };
-
-          console.log("Food order data:", foodOrderData);
-
-          // Create food order using addons API
-          const { createAddonOrder } = await import("@/api/addons");
-          const foodOrderResponse = await createAddonOrder(foodOrderData);
-
-          if (foodOrderResponse.success) {
-            console.log(
-              "Food order created successfully:",
-              foodOrderResponse.data
-            );
-          } else {
-            console.error(
-              "Failed to create food order:",
-              foodOrderResponse.error
-            );
-          }
-        } catch (error) {
-          console.error("Error creating food order:", error);
-          // Don't throw error here, ticket is already created
+        if (!addonResponse.success) {
+          // Rollback: delete ticket via new endpoint
+          console.error("Addon creation failed, rolling back ticket...");
+          const { deleteTicket } = await import("@/api/ticket");
+          await deleteTicket(newTicketCode);
+          throw new Error("Failed to create addons, ticket rolled back");
         }
       }
 
-      return response;
+      // 4. Confirm booking in context
+      confirmBooking();
     } catch (error) {
-      console.error("Error creating ticket:", error);
-      throw error;
+      console.error("Error in booking process:", error);
+      alert(
+        `Booking failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+      setTicketCode(null);
     } finally {
       setIsProcessing(false);
+      setLoading(false);
     }
   };
 
   // Handle download ticket
   const handleDownloadTicket = async () => {
-    if (isProcessing) {
-      console.log("Already processing, please wait...");
+    if (!ticketCode) {
+      alert("Please confirm booking first");
       return;
     }
 
     try {
       setLoading(true);
-
-      // Send complete data to server first
-      await sendBookingDataToServer();
 
       // Generate PDF ticket
       const { generateTicketPDF } = await import("@/lib/pdfUtils");
@@ -367,7 +317,7 @@ const ReceiptPage = () => {
           user_id: 0,
           bus_id: booking.bus?.id || 0,
           no_seat: booking.no_seat || "Unknown",
-          total_price: booking.total_price || 0,
+          total_price: total,
           ticket_code: ticketCode,
           created_at: new Date().toISOString(),
           departure_city:
@@ -419,7 +369,11 @@ const ReceiptPage = () => {
       }
     } catch (error) {
       console.error("Error in download ticket:", error);
-      // You might want to show an error message to the user here
+      alert(
+        `Failed to download ticket: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setLoading(false);
     }
@@ -658,7 +612,7 @@ const ReceiptPage = () => {
                   </div>
                   <Button
                     ref={buttonRef}
-                    onClick={handleConfirmBooking}
+                    onClick={handleConfirmAndCreateTicket}
                     disabled={loading}
                     className="w-full rounded-none bg-blue-600 text-white px-8 py-4 hover:bg-blue-700 transition-colors duration-200 shadow-lg text-lg font-semibold"
                   >

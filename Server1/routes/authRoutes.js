@@ -5,7 +5,7 @@ const prisma = require("../db.js"); // Prisma Client
 const logger = require("../config/logger"); // Winston logger
 
 const router = express.Router();
-const SECRET_KEY = "inisangatrahasiabanget"; // Use env variable in production
+const SECRET_KEY = process.env.JWT_SECRET || "fallback_secret"; // Use environment variable
 
 // Register a new user
 router.post("/register", async (req, res) => {

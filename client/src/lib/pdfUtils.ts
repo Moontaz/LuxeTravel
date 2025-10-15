@@ -8,6 +8,11 @@ export const generateTicketPDF = async (ticket: Ticket): Promise<Blob> => {
     throw new Error("PDF generation is only available in browser environment");
   }
 
+  // Validate input ticket
+  if (!ticket || !ticket.ticket_code) {
+    throw new Error("Invalid ticket data: missing ticket code");
+  }
+
   try {
     console.log("Creating PDF document...");
     const doc = new jsPDF();
