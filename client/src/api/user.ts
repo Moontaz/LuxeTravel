@@ -14,17 +14,6 @@ export interface UserResponse {
   error?: unknown;
 }
 
-// Get user profile
-export const getUserProfile = async (): Promise<UserResponse> => {
-  try {
-    const response = await api.get("/api/user/profile");
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    return { success: false, error };
-  }
-};
-
 // Update user profile
 export const updateUserProfile = async (
   profileData: UserProfile

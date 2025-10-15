@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { DecodedToken, Ticket, FoodOrder, FoodItem } from "./interface";
 import { jwtDecode } from "jwt-decode";
-import { getCookie } from "@/utils/cookies";
+import { getCookie } from "./cookieHandler";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,7 +15,7 @@ export {
   deleteCookie,
   getAuthTokens,
   clearAuthTokens,
-} from "@/utils/cookies";
+} from "./cookieHandler";
 
 export const getId = (name: string) => {
   const token = getCookie(name);

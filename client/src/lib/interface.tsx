@@ -100,28 +100,12 @@ export interface Ticket {
   addonsLoading?: boolean; // Loading state for addons
 }
 
-export interface FoodItem {
-  food_id: number;
-  food_name: string;
-  price: string;
-  quantity: number;
-}
-
 export interface FoodOrder {
   order_id: number;
   ticket_code: string;
   food_items: FoodItem[];
   total_price: string;
   created_at: string;
-}
-
-export interface AddonItem {
-  id: number;
-  name: string;
-  type: "food" | "luggage" | "seat_preference" | "other";
-  price: number;
-  quantity?: number;
-  description?: string;
 }
 
 export interface DecodedToken {

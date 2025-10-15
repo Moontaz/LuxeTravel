@@ -157,7 +157,7 @@ const Header = () => {
                 <div className="flex items-center space-x-2">
                   <Link
                     href="/usertickets"
-                    className={`px-3 py-2 rounded-none border transition-colors duration-300 ${
+                    className={`px-3 py-1 rounded-none border transition-colors duration-300 ${
                       isScrolled
                         ? "border-gray-300 text-gray-900 hover:bg-gray-50"
                         : "border-white/30 text-white hover:bg-white/10"

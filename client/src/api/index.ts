@@ -5,5 +5,5 @@ export * from "./booking";
 export * from "./ticket";
 export * from "./addons";
 export * from "./payment";
-export { getUserProfile, updateUserProfile } from "./user";
+export { updateUserProfile } from "./user";
 export { api, foodApi } from "./axiosInstance";

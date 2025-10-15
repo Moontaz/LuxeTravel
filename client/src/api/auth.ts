@@ -85,14 +85,3 @@ export const logout = async (): Promise<AuthResponse> => {
     return { success: false, error };
   }
 };
-
-// Get user profile
-export const getUserProfile = async (): Promise<AuthResponse> => {
-  try {
-    const response = await api.get("/api/auth/profile");
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Get user profile error:", error);
-    return { success: false, error };
-  }
-};
