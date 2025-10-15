@@ -195,22 +195,22 @@ const ReceiptPage = () => {
   const total = foodTotal + (booking?.bus?.price || 0);
 
   // Handle confirmation with GSAP animation
-  const handleConfirmBooking = () => {
-    if (buttonRef.current) {
-      gsap.to(buttonRef.current, {
-        scale: 0.95,
-        duration: 0.1,
-        yoyo: true,
-        repeat: 1,
-        ease: "power2.out",
-        onComplete: () => {
-          confirmBooking();
-        },
-      });
-    } else {
-      confirmBooking();
-    }
-  };
+  // const handleConfirmBooking = () => {
+  //   if (buttonRef.current) {
+  //     gsap.to(buttonRef.current, {
+  //       scale: 0.95,
+  //       duration: 0.1,
+  //       yoyo: true,
+  //       repeat: 1,
+  //       ease: "power2.out",
+  //       onComplete: () => {
+  //         confirmBooking();
+  //       },
+  //     });
+  //   } else {
+  //     confirmBooking();
+  //   }
+  // };
 
   // Handle confirmation and create ticket with rollback logic
   const handleConfirmAndCreateTicket = async () => {
