@@ -217,7 +217,7 @@ const ReceiptPage = () => {
     if (isProcessing) return;
     setIsProcessing(true);
     setLoading(true);
-
+    cd;
     try {
       // 1. Extract data
       const token1 = getCookie("token1");
