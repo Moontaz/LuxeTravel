@@ -252,7 +252,9 @@ const ReceiptPage = () => {
       const ticketResponse = await createTicket(ticketData);
       if (!ticketResponse.success) throw new Error("Failed to create ticket");
 
-      const newTicketCode = (ticketResponse.data as { ticket?: { ticket_code?: string } })?.ticket?.ticket_code;
+      const newTicketCode = (
+        ticketResponse.data as { ticket?: { ticket_code?: string } }
+      )?.ticket?.ticket_code;
       if (!newTicketCode) throw new Error("No ticket code returned");
 
       setTicketCode(newTicketCode);

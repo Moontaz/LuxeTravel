@@ -18,7 +18,7 @@ export {
 } from "./cookieHandler";
 
 export const getId = (name: string) => {
-  const token = getCookie(name);
+  const token = getCookie(name) as string | null;
   const decoded = jwtDecode<DecodedToken>(token || "");
   return decoded.id;
 };
