@@ -29,7 +29,7 @@ const Header = () => {
   useEffect(() => {
     const checkAuth = () => {
       try {
-        const token = getCookie("token1");
+        const token = getCookie("token1") as string | null;
         if (token) {
           // Decode JWT token to get user info
           const payload = JSON.parse(atob(token.split(".")[1]));

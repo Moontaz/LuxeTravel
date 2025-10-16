@@ -37,7 +37,7 @@ const ReceiptPage = () => {
 
   // Get user data
   useEffect(() => {
-    const token1 = getCookie("token1");
+    const token1 = getCookie("token1") as string | null;
     if (token1) {
       try {
         const decoded: DecodedToken = jwtDecode(token1);
@@ -217,10 +217,10 @@ const ReceiptPage = () => {
     if (isProcessing) return;
     setIsProcessing(true);
     setLoading(true);
-    cd;
+
     try {
       // 1. Extract data
-      const token1 = getCookie("token1");
+      const token1 = getCookie("token1") as string;
       const decoded: DecodedToken = jwtDecode(token1);
       const userId = decoded.id;
 
@@ -252,7 +252,7 @@ const ReceiptPage = () => {
       const ticketResponse = await createTicket(ticketData);
       if (!ticketResponse.success) throw new Error("Failed to create ticket");
 
-      const newTicketCode = ticketResponse.data?.ticket?.ticket_code;
+      const newTicketCode = (ticketResponse.data as any)?.ticket?.ticket_code;
       if (!newTicketCode) throw new Error("No ticket code returned");
 
       setTicketCode(newTicketCode);
