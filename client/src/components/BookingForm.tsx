@@ -34,11 +34,16 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!origin || !destination || !date) {
-      alert("Please fill in all required fields");
+    if (!origin || !destination) {
+      alert("Please select both departure and destination cities");
       return;
     }
-    onSearch();
+
+    // Pass filter data to parent component
+    onSearch({
+      origin,
+      destination,
+    });
   };
 
   return (

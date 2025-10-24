@@ -160,7 +160,7 @@ export interface BookingContextProps {
 
 export interface BookingFormProps {
   cities: City[];
-  onSearch: () => void;
+  onSearch: (filters?: { origin?: string; destination?: string }) => void;
   loading?: boolean;
 }
 
